@@ -7,14 +7,14 @@ import java.awt.*;
 
 public class GamePanel extends JPanel implements Runnable{
     // SCREEN SETTINGS
-    private static final int ORIGINAL_TILE_SIZE = 16;                        // 16x16 default tile size
+    public static final int ORIGINAL_TILE_SIZE = 16;                        // 16x16 default tile size
     private static final int SCALE = 3;
-
     public static final int TILE_SIZE = ORIGINAL_TILE_SIZE * SCALE;          // 48x48 actual tile size
+
     private static final int MAX_SCREEN_COL = 16;                            // 4x3 ratio
     private static final int MAX_SCREEN_ROW = 12;
-    private static final int SCREEN_WIDTH = MAX_SCREEN_COL * TILE_SIZE;        // 768x576 pixels
-    private static final int SCREEN_HEIGHT = MAX_SCREEN_ROW * TILE_SIZE;
+    public static final int SCREEN_WIDTH = MAX_SCREEN_COL * TILE_SIZE;        // 768x576 pixels
+    public static final int SCREEN_HEIGHT = MAX_SCREEN_ROW * TILE_SIZE;
 
     // FPS
     private static final int FPS = 60;
@@ -77,7 +77,12 @@ public class GamePanel extends JPanel implements Runnable{
      * Updates game state based on current input
      */
     public void update() {
-        player.update();
+        // Prevent key events to get "stuck" if the window loses focus while a key is pressed
+        if (this.isFocusOwner()) {
+            player.update();
+        } else {
+            gameKeyHandler.resetAllKeys();
+        }
     }
 
     @Override

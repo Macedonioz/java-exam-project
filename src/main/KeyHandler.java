@@ -37,6 +37,13 @@ public class KeyHandler extends KeyAdapter {
         }
     }
 
+    public void resetAllKeys() {
+        upPressed = false;
+        downPressed = false;
+        leftPressed = false;
+        rightPressed = false;
+    }
+
     public boolean isUpPressed() {
         return upPressed;
     }

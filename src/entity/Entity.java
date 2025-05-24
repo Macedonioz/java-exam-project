@@ -1,31 +1,22 @@
 package entity;
 
-public class Entity {
+import java.awt.image.BufferedImage;
+
+public abstract class Entity {
 
     private int x, y;
     private int speed;
 
-    protected int getX() {
-        return x;
+    public int getX() { return x; }
+    public int getY() { return y; }
+    public int getSpeed() { return speed; }
+
+    public void setX(int x) { this.x = x; }
+    public void setY(int y) { this.y = y; }
+    public void setSpeed(int speed) {
+        if(speed >= 0) this.speed = speed;
     }
 
-    protected int getY() {
-        return y;
-    }
-
-    protected int getSpeed() {
-        return speed;
-    }
-
-    protected void setX(int x) {
-        this.x = x;
-    }
-
-    protected void setY(int y) {
-        this.y = y;
-    }
-
-    protected void setSpeed(int speed) {
-        this.speed = speed;
-    }
+    // Abstract methods
+    public abstract void update();
 }
