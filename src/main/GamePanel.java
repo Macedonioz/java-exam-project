@@ -1,5 +1,7 @@
 package main;
 
+import entity.Player;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -8,7 +10,7 @@ public class GamePanel extends JPanel implements Runnable{
     private static final int ORIGINAL_TILE_SIZE = 16;                        // 16x16 default tile size
     private static final int SCALE = 3;
 
-    private static final int TILE_SIZE = ORIGINAL_TILE_SIZE * SCALE;          // 48x48 actual tile size
+    public static final int TILE_SIZE = ORIGINAL_TILE_SIZE * SCALE;          // 48x48 actual tile size
     private static final int MAX_SCREEN_COL = 16;                            // 4x3 ratio
     private static final int MAX_SCREEN_ROW = 12;
     private static final int SCREEN_WIDTH = MAX_SCREEN_COL * TILE_SIZE;        // 768x576 pixels
@@ -19,12 +21,7 @@ public class GamePanel extends JPanel implements Runnable{
 
     private final KeyHandler gameKeyHandler = new KeyHandler();
     private Thread gameThread;
-
-    // TODO create player class
-    // Player state
-    private int playerX = 100;
-    private int playerY = 100;
-    private int playerSpeed = 4;
+    Player player = new Player(this, gameKeyHandler);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -40,7 +37,6 @@ public class GamePanel extends JPanel implements Runnable{
      * or if the existing one has finished)
      */
     public void startGameThread() {
-
         if (gameThread == null || !gameThread.isAlive()) {
             gameThread = new Thread(this, "Game Thread");
             // starting the thread causes the run method to be automatically called in that separately executing thread
@@ -50,22 +46,28 @@ public class GamePanel extends JPanel implements Runnable{
 
     @Override
     public void run() {
+        // Fixed timestep game loop with a delta accumulator
 
-        final double drawInterval = 1_000_000_000.0 / FPS;                  // Interval between frames (nanos in one second / FPS) [0.1666s for 60 FPS]
-        double nextDrawTime = System.nanoTime() + drawInterval;
+        final double drawInterval = 1_000_000_000.0 / FPS;
+        double delta = 0;
+        long lastTime = System.nanoTime();
 
-        while(!Thread.currentThread().isInterrupted()) {
+        while (!Thread.currentThread().isInterrupted()) {
 
-            update();
-            repaint();
+            long currentTime = System.nanoTime();
+            delta += (currentTime - lastTime) / drawInterval;
+            lastTime = currentTime;
 
+            if (delta >= 1) {
+                update();
+                repaint();
+                delta--;
+            }
+
+            // Small sleep to reduce CPU usage
             try {
-                double remainingTime = nextDrawTime - System.nanoTime();
-                remainingTime = Math.max(remainingTime, 0) / 1_000_000.0;       // convert to milliseconds & set to 0 if value is negative
-                Thread.sleep((long) remainingTime);
-                nextDrawTime += drawInterval;
+                Thread.sleep(1);
             } catch (InterruptedException e) {
-                // Exit the loop and clean up
                 Thread.currentThread().interrupt();
             }
         }
@@ -75,46 +77,15 @@ public class GamePanel extends JPanel implements Runnable{
      * Updates game state based on current input
      */
     public void update() {
-
-        int dx = 0;
-        int dy = 0;
-
-        // Checks all keys independently to allow diagonal movement
-        if (gameKeyHandler.isUpPressed()) {
-            dy -= 1;
-        }
-        if (gameKeyHandler.isDownPressed()) {
-            dy += 1;
-        }
-        if (gameKeyHandler.isLeftPressed()) {
-            dx -= 1;
-        }
-        if (gameKeyHandler.isRightPressed()) {
-            dx += 1;
-        }
-
-        // Normalize diagonal movement to make it the same speed as horizontal/vertical one
-        if (dx != 0 && dy != 0) {
-            double length = Math.sqrt(dx * dx + dy * dy);
-            dx = (int) Math.round((dx / length) * playerSpeed);
-            dy = (int) Math.round((dy / length) * playerSpeed);
-        } else {
-            dx *= playerSpeed;
-            dy *= playerSpeed;
-        }
-
-        playerX += dx;
-        playerY += dy;
+        player.update();
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D g2d = (Graphics2D) g;            // extends Graphics providing more advanced features
 
-        g2d.setColor(Color.white);
-        g2d.fillOval(playerX, playerY, TILE_SIZE, TILE_SIZE);
+        player.render(g2d);
 
         // disposal of Graphics object and release of system resources that it is using is handled by Swing
     }

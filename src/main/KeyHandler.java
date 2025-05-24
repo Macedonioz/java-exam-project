@@ -25,7 +25,6 @@ public class KeyHandler extends KeyAdapter {
      * @param isPressed true if the key is pressed, false if released
      */
     private void updateKeyState(int keyCode, boolean isPressed) {
-
         // Java enhanced switch statement
         switch (keyCode) {
             case KeyEvent.VK_W, KeyEvent.VK_UP -> upPressed = isPressed;
