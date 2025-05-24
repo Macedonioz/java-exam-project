@@ -76,19 +76,35 @@ public class GamePanel extends JPanel implements Runnable{
      */
     public void update() {
 
+        int dx = 0;
+        int dy = 0;
+
         // Checks all keys independently to allow diagonal movement
         if (gameKeyHandler.isUpPressed()) {
-            playerY -= playerSpeed;
+            dy -= 1;
         }
         if (gameKeyHandler.isDownPressed()) {
-            playerY += playerSpeed;                     // Y values increases as they go down
+            dy += 1;
         }
         if (gameKeyHandler.isLeftPressed()) {
-            playerX -= playerSpeed;
+            dx -= 1;
         }
         if (gameKeyHandler.isRightPressed()) {
-            playerX += playerSpeed;                     // X values increases as they go right
+            dx += 1;
         }
+
+        // Normalize diagonal movement to make it the same speed as horizontal/vertical one
+        if (dx != 0 && dy != 0) {
+            double length = Math.sqrt(dx * dx + dy * dy);
+            dx = (int) Math.round((dx / length) * playerSpeed);
+            dy = (int) Math.round((dy / length) * playerSpeed);
+        } else {
+            dx *= playerSpeed;
+            dy *= playerSpeed;
+        }
+
+        playerX += dx;
+        playerY += dy;
     }
 
     @Override
