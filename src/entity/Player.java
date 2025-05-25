@@ -15,15 +15,18 @@ public class Player extends RenderableEntity {
     private final GamePanel gamePanel;
     private final KeyHandler gameKeyHandler;
 
+    private static final int DEFAULT_SPEED = 4;
+
+    // TODO commentare le costanti
     // Sprites
     private static final int NUM_ANIMATION_FRAMES = 4;
     private static final int SPRITE_ROWS = 4;
-    private final int FRAME_SIZE = GamePanel.ORIGINAL_TILE_SIZE;
+    private static final int FRAME_SIZE = GamePanel.ORIGINAL_TILE_SIZE;
 
     // Animation
     private int frameDelayCounter = 0;
     private int currentAnimationFrame = 0;
-    private static final int ANIMATION_FRAME_DELAY = 10;
+    private static final int ANIMATION_FRAME_DELAY = 10;                // animation speed
 
     public Player(GamePanel gamePanel, KeyHandler gameKeyHandler) {
         this.gamePanel = gamePanel;
@@ -34,9 +37,9 @@ public class Player extends RenderableEntity {
     }
 
     public void setDefaultValues() {
-        setX(GamePanel.SCREEN_WIDTH / 2 - FRAME_SIZE);
-        setY(GamePanel.SCREEN_HEIGHT / 2 - FRAME_SIZE);
-        setSpeed(4);
+        setX(100);
+        setY(100);
+        setSpeed(DEFAULT_SPEED);
     }
 
     @Override
@@ -81,8 +84,6 @@ public class Player extends RenderableEntity {
         setX(getX() + dx);
         setY(getY() + dy);
         isMoving = (dx != 0 || dy != 0);
-
-        // TODO Boundary check
     }
 
     private void updateAnimation() {
@@ -114,9 +115,12 @@ public class Player extends RenderableEntity {
 
         } catch (IOException e) {
             System.err.println("Error loading player sprites:" + e.getMessage());
+            e.printStackTrace();
         }
     }
 
+    // Supporta sprite sheet in cui ogni frame (di dimensione FRAME_SIZE x FRAME_SIZE) si trova all'immediata destra del precedente.
+    // Ogni riga indica i "tipi" di frames (es. 4 righe per ogni direzione), ogni colonna indica uno degli animation frames della riga
     private BufferedImage[] sliceSpriteSheet(BufferedImage sheet) {
         BufferedImage[] frames = new BufferedImage[SPRITE_ROWS * NUM_ANIMATION_FRAMES];
 
@@ -133,10 +137,10 @@ public class Player extends RenderableEntity {
     @Override
     public BufferedImage getCurrentSprite() {
         int directionRow = switch (facing) {
-            case DOWN -> directionRow = 0;
-            case LEFT -> directionRow = 1;
-            case RIGHT -> directionRow = 2;
-            case UP -> directionRow = 3;
+            case DOWN -> 0;
+            case LEFT -> 1;
+            case RIGHT -> 2;
+            case UP -> 3;
         };
 
         BufferedImage[] frames = isMoving ? runFrames : idleFrames;
