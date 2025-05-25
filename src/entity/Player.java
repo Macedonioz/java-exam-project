@@ -16,12 +16,13 @@ public class Player extends RenderableEntity {
     private final KeyHandler gameKeyHandler;
 
     private static final int DEFAULT_SPEED = 4;
+    private final int screenX;
+    private final int screenY;
 
     // TODO commentare le costanti
     // Sprites
     private static final int NUM_ANIMATION_FRAMES = 4;
     private static final int SPRITE_ROWS = 4;
-    private static final int FRAME_SIZE = GamePanel.ORIGINAL_TILE_SIZE;
 
     // Animation
     private int frameDelayCounter = 0;
@@ -32,13 +33,16 @@ public class Player extends RenderableEntity {
         this.gamePanel = gamePanel;
         this.gameKeyHandler = gameKeyHandler;
 
+        screenX = (GamePanel.SCREEN_WIDTH / 2) - (GamePanel.TILE_SIZE / 2);
+        screenY = (GamePanel.SCREEN_HEIGHT / 2) - (GamePanel.TILE_SIZE / 2);
+
         setDefaultValues();
         loadSprites();
     }
 
     public void setDefaultValues() {
-        setX(100);
-        setY(100);
+        setWorldX(GamePanel.WORLD_WIDTH / 2);
+        setWorldY(GamePanel.WORLD_HEIGHT / 2);
         setSpeed(DEFAULT_SPEED);
     }
 
@@ -81,8 +85,8 @@ public class Player extends RenderableEntity {
             dy *= playerSpeed;
         }
 
-        setX(getX() + dx);
-        setY(getY() + dy);
+        setWorldX(getWorldX() + dx);
+        setWorldY(getWorldY() + dy);
         isMoving = (dx != 0 || dy != 0);
     }
 
@@ -119,15 +123,18 @@ public class Player extends RenderableEntity {
         }
     }
 
-    // Supporta sprite sheet in cui ogni frame (di dimensione FRAME_SIZE x FRAME_SIZE) si trova all'immediata destra del precedente.
+    // Supporta sprite sheet in cui ogni frame (di dimensione frameSize x frameSize) si trova all'immediata destra del precedente.
     // Ogni riga indica i "tipi" di frames (es. 4 righe per ogni direzione), ogni colonna indica uno degli animation frames della riga
     private BufferedImage[] sliceSpriteSheet(BufferedImage sheet) {
         BufferedImage[] frames = new BufferedImage[SPRITE_ROWS * NUM_ANIMATION_FRAMES];
 
+        int frameSize = GamePanel.ORIGINAL_TILE_SIZE;
+
         for (int i = 0; i < SPRITE_ROWS; i++) {
             for (int j = 0; j < NUM_ANIMATION_FRAMES; j++) {
                 int frameIndex = (i * NUM_ANIMATION_FRAMES) + j;
-                frames[frameIndex] = sheet.getSubimage(j * FRAME_SIZE, i * FRAME_SIZE, FRAME_SIZE, FRAME_SIZE);
+                frames[frameIndex] = sheet.getSubimage(j * frameSize, i * frameSize,
+                                                        frameSize, frameSize);
             }
         }
 
@@ -151,9 +158,14 @@ public class Player extends RenderableEntity {
 
     @Override
     public void render(Graphics g) {
-        g.drawImage(getCurrentSprite(), getX(), getY(), GamePanel.TILE_SIZE, GamePanel.TILE_SIZE, null);
+        g.drawImage(getCurrentSprite(), screenX, screenY,
+                    GamePanel.TILE_SIZE, GamePanel.TILE_SIZE, null);
         // Per debug: mostra hitbox
         // g.setColor(Color.RED);
         // g.drawRect(getX(), getY(), GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
     }
+
+    public int getScreenX() { return screenX; }
+
+    public int getScreenY() { return screenY; }
 }

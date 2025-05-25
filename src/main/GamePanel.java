@@ -17,14 +17,20 @@ public class GamePanel extends JPanel implements Runnable{
     public static final int SCREEN_WIDTH = MAX_SCREEN_COL * TILE_SIZE;        // 768x576 pixels
     public static final int SCREEN_HEIGHT = MAX_SCREEN_ROW * TILE_SIZE;
 
+    // WORLD SETTINGS
+    public static final int MAX_WORLD_COL = 30;
+    public static final int MAX_WORLD_ROW = 30;
+    public static final int WORLD_WIDTH = TILE_SIZE * MAX_WORLD_COL;
+    public static final int WORLD_HEIGHT = TILE_SIZE * MAX_WORLD_ROW;
+
     // FPS
     private static final int FPS = 60;
 
     private final KeyHandler gameKeyHandler = new KeyHandler();
     private Thread gameThread;
 
-    Player player = new Player(this, gameKeyHandler);
-    TileManager tileManager = new TileManager(this);
+    private Player player = new Player(this, gameKeyHandler);
+    private TileManager tileManager = new TileManager(this);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -98,4 +104,6 @@ public class GamePanel extends JPanel implements Runnable{
 
         // disposal of Graphics object and release of system resources that it is using is handled by Swing
     }
+
+    public Player getPlayer() { return player; }
 }

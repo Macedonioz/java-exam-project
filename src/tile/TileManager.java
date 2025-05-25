@@ -1,5 +1,6 @@
 package tile;
 
+import entity.Player;
 import main.GamePanel;
 
 import javax.imageio.ImageIO;
@@ -17,21 +18,13 @@ public class TileManager {
     private ArrayList<Tile> tiles;
     private int[][] mapTileNum;
 
-    // TODO enum tileID
-//    public enum TileID {
-//        GRASS(0), PATH(1), WATER(2), TREE(3);
-//        private final int id;
-//        TileID(int id) { this.id = id; }
-//        public int getID() { return id; }
-//    }
-
     public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
         this.tiles = new ArrayList<>();
-        this.mapTileNum = new int[GamePanel.MAX_SCREEN_COL][GamePanel.MAX_SCREEN_ROW];
+        this.mapTileNum = new int[GamePanel.MAX_WORLD_COL][GamePanel.MAX_WORLD_ROW];
 
         loadTiles();
-        loadTileMap("/maps/map01.txt");
+        loadTileMap("/maps/world01.txt");
     }
 
     // funzione privata di loadTiles
@@ -67,13 +60,13 @@ public class TileManager {
             InputStream is = getClass().getResourceAsStream(path);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
-            for (int row = 0; row < GamePanel.MAX_SCREEN_ROW; row++) {
+            for (int worldRow = 0; worldRow < GamePanel.MAX_WORLD_ROW; worldRow++) {
                 String line = br.readLine();
                 String[] tilesID = line.split(" ");
 
-                for (int col = 0; col < GamePanel.MAX_SCREEN_COL; col++) {
-                    int tileID = Integer.parseInt(tilesID[col]);
-                    mapTileNum[col][row] = tileID;
+                for (int worldCol = 0; worldCol < GamePanel.MAX_WORLD_COL; worldCol++) {
+                    int tileID = Integer.parseInt(tilesID[worldCol]);
+                    mapTileNum[worldCol][worldRow] = tileID;
                 }
             }
 
@@ -83,17 +76,42 @@ public class TileManager {
         }
     }
 
-    private void renderTileMap(Graphics2D g2) {
-        int x = 0, y = 0;
+    private boolean isTileVisible(int tileWorldX, int tileWorldY,
+                                  int playerWorldX, int playerWorldY,
+                                  int playerScreenX, int playerScreenY) {
+        int leftBound = playerWorldX - playerScreenX;
+        int rightBound = playerWorldX + playerScreenX;
+        int upperBound = playerWorldY - playerScreenY;
+        int lowerBound = playerWorldY + playerScreenY;
 
-        for (int row = 0; row < GamePanel.MAX_SCREEN_ROW; row++) {
-            for (int col = 0; col < GamePanel.MAX_SCREEN_COL; col++) {
-                int tileNum = mapTileNum[col][row];
-                g2.drawImage(tiles.get(tileNum).getImage(), x, y, GamePanel.TILE_SIZE, GamePanel.TILE_SIZE, null);
-                x += GamePanel.TILE_SIZE;
+        return  (tileWorldX + GamePanel.TILE_SIZE) > leftBound &&
+                (tileWorldX - GamePanel.TILE_SIZE) < rightBound &&
+                (tileWorldY + GamePanel.TILE_SIZE) > upperBound &&
+                (tileWorldY - GamePanel.TILE_SIZE) < lowerBound;
+    }
+
+    private void renderTileMap(Graphics2D g2) {
+        Player player = gamePanel.getPlayer();
+        int playerWorldX = player.getWorldX();
+        int playerWorldY = player.getWorldY();
+        int playerScreenX = player.getScreenX();
+        int playerScreenY = player.getScreenY();
+
+        for (int worldRow = 0; worldRow < GamePanel.MAX_WORLD_ROW; worldRow++) {
+            for (int worldCol = 0; worldCol < GamePanel.MAX_WORLD_COL; worldCol++) {
+                int tileNum = mapTileNum[worldCol][worldRow];
+
+                int worldX = worldCol * GamePanel.TILE_SIZE;
+                int worldY = worldRow * GamePanel.TILE_SIZE;
+
+                if (isTileVisible(worldX, worldY, playerWorldX, playerWorldY, playerScreenX, playerScreenY)) {
+                    int screenX = worldX - playerWorldX + playerScreenX;
+                    int screenY = worldY - playerWorldY + playerScreenY;
+
+                    g2.drawImage(tiles.get(tileNum).getImage(), screenX, screenY,
+                                GamePanel.TILE_SIZE, GamePanel.TILE_SIZE, null);
+                }
             }
-            x = 0;
-            y += GamePanel.TILE_SIZE;
         }
     }
 
