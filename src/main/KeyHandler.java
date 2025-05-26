@@ -37,6 +37,9 @@ public class KeyHandler extends KeyAdapter {
         }
     }
 
+    /**
+     * Set all keys pressed state to false
+     */
     public void resetAllKeys() {
         upPressed = false;
         downPressed = false;

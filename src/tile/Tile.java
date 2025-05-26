@@ -2,7 +2,6 @@ package tile;
 
 import java.awt.image.BufferedImage;
 
-// TODO maybe add animated tiles?
 public class Tile {
 
     private BufferedImage image;

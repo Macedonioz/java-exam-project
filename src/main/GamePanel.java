@@ -6,6 +6,10 @@ import tile.TileManager;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Game panel where all game components are displayed
+ * @author LC
+ */
 public class GamePanel extends JPanel implements Runnable{
     // SCREEN SETTINGS
     public static final int ORIGINAL_TILE_SIZE = 16;                        // 16x16 default tile size
@@ -42,20 +46,19 @@ public class GamePanel extends JPanel implements Runnable{
     }
 
     /**
-     * Starts the game loop thread (if it has not yet been created
-     * or if the existing one has finished)
+     * Starts the game loop thread
      */
     public void startGameThread() {
-        if (gameThread == null || !gameThread.isAlive()) {
-            gameThread = new Thread(this, "Game Thread");
-            // starting the thread causes the run method to be automatically called in that separately executing thread
-            gameThread.start();
-        }
+        gameThread = new Thread(this, "Game Thread");
+        // starting the thread causes the run method to be automatically called in that separately executing thread
+        gameThread.start();
     }
 
+    /**
+     * GameThread: fixed timestep game loop with a delta accumulator
+     */
     @Override
     public void run() {
-        // Fixed timestep game loop with a delta accumulator
 
         final double drawInterval = 1_000_000_000.0 / FPS;
         double delta = 0;
@@ -94,9 +97,16 @@ public class GamePanel extends JPanel implements Runnable{
         }
     }
 
+    /**
+     * Handles custom rendering of game elements.
+     * This method is automatically called by Swing when the component needs to be redrawn
+     * @param g The Graphics context used for rendering. This is provided by Swing's painting system.
+     *          It represents the drawing surface of the component.
+     */
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(g);
+        super.paintComponent(g);                    // to ensure proper rendering hierarchy and clear background
+
         Graphics2D g2d = (Graphics2D) g;            // extends Graphics providing more advanced features
 
         tileManager.render(g2d);

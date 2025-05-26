@@ -36,6 +36,10 @@ public class TileManager {
     }
 
     // TODO gestire sprite sheet (più tardi)
+
+    /**
+     * Loads tiles from tiles dir in res folder
+     */
     public void loadTiles() {
         try {
             tiles.add(new Tile(loadTile("/tiles/grass_01.png"), false));
@@ -50,12 +54,12 @@ public class TileManager {
     }
 
     // TODO add security measures (split, parse)
-    public void loadTileMap(String path) {
-//        // Validate input path
-//        if (path == null || path.trim().isEmpty()) {
-//            throw new IllegalArgumentException("Map path cannot be null or empty");
-//        }
 
+    /**
+     * Loads tiles ID map into a 2D array
+     * @param path file path of the world map (.txt) to load
+     */
+    public void loadTileMap(String path) {
         try {
             InputStream is = getClass().getResourceAsStream(path);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -76,6 +80,8 @@ public class TileManager {
         }
     }
 
+    // Checks if tile is within the player's visible area.
+    // Returns true if tile is inside the boundaries, false otherwise
     private boolean isTileVisible(int tileWorldX, int tileWorldY,
                                   int playerWorldX, int playerWorldY,
                                   int playerScreenX, int playerScreenY) {
@@ -90,6 +96,11 @@ public class TileManager {
                 (tileWorldY - GamePanel.TILE_SIZE) < lowerBound;
     }
 
+    /**
+     * Renders the game's tile map relative to player position.
+     * Only tiles within the visible screen area are drawn.
+     * @param g2  Graphics context used for drawing
+     */
     private void renderTileMap(Graphics2D g2) {
         Player player = gamePanel.getPlayer();
         int playerWorldX = player.getWorldX();
