@@ -38,7 +38,7 @@ public class Player extends RenderableEntity {
 
     //TODO temporary (?)
     int numKeys = 0;
-    private static final int REQUIRED_KEYS = 2;
+    private static final int REQUIRED_KEYS = 4;
 
     public Player(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
@@ -107,29 +107,32 @@ public class Player extends RenderableEntity {
      * Handle player movement based on keys input and collisions
      */
     private void handleMovement() {
-        Point movementDirection = calculateMovementDirection();
+        int[] direction = calculateMovementDirection();
+        int dx = direction[0];
+        int dy = direction[1];
 
-        if (movementDirection.x == 0 && movementDirection.y == 0) {
+        if (dx == 0 && dy == 0) {
             setMoving(false);
             return;
         }
 
-        updateFacingDirection(movementDirection);
+        updateFacingDirection(dx, dy);
         handleCollisions();
 
-        Point finalVelocity = calculateFinalVelocity(movementDirection);
-        updateWorldPosition(finalVelocity);
+        int[] Velocity = calculateFinalVelocity(dx, dy);
+        int vx = Velocity[0];
+        int vy = Velocity[1];
 
-        setMoving(finalVelocity.x != 0 || finalVelocity.y != 0);
+        updateWorldPosition(vx, vy);
+
+        setMoving(vx != 0 || vy != 0);
     }
 
     /**
-     * Calculates player's movement direction based on keys input
-     * @return a point(x, y) representing movement direction
-     *         dx = 1 --> RIGHT;    dx = -1 --> LEFT
-     *         dy = 1 --> DOWN;     dy = -1 --> UP
+     * Calculates player's movement direction based on keys input.
+     * @return player movement direction {dx, dy}
      */
-    private Point calculateMovementDirection() {
+    private int[] calculateMovementDirection() {
         int dx = 0, dy = 0;
         KeyHandler input = gamePanel.getGameKeyHandler();
 
@@ -138,20 +141,63 @@ public class Player extends RenderableEntity {
         if (input.isLeftPressed()) dx--;
         if (input.isRightPressed()) dx++;
 
-        return new Point(dx, dy);
+        return new int[]{dx, dy};
     }
 
     /**
      * Updates player facing direction.
-     * For diagonal movement prioritizes horizontal directions
-     * @param direction player movement directions (x, y)
+     * For diagonal movement prioritizes horizontal directions.
+     * @param dx horizontal movement direction
+     * @param dy vertical movement direction
      */
-    private void updateFacingDirection(Point direction) {
-        if (Math.abs(direction.y) > Math.abs(direction.x)) {
-            this.setFacing(direction.y > 0 ? Direction.DOWN : Direction.UP);
+    private void updateFacingDirection(int dx, int dy) {
+        if (Math.abs(dy) > Math.abs(dx)) {
+            this.setFacing(dy > 0 ? Direction.DOWN : Direction.UP);
         } else {
-            this.setFacing(direction.x > 0 ? Direction.RIGHT : Direction.LEFT);
+            this.setFacing(dx > 0 ? Direction.RIGHT : Direction.LEFT);
         }
+    }
+
+    /**
+     * Calculates the player final velocity based on speed and direction,
+     * unless player collision is enabled.
+     * @param dx horizontal movement direction
+     * @param dy vertical movement direction
+     * @return player movement velocity {vx, vy},
+     * {0, 0} if player collision is enabled
+     */
+    private int[] calculateFinalVelocity(int dx, int dy) {
+        if (isCollisionOn()) return new int[]{0, 0};
+
+        int speed = this.getSpeed();
+        return normalizeDiagonalMovement(dx, dy, speed);
+    }
+
+    /**
+     * Normalizes diagonal movement and applies speed.
+     * @param dx horizontal movement direction
+     * @param dy vertical movement direction
+     * @param speed player speed scalar
+     * @return normalized player movement velocity {vx, vy},
+     */
+    private int[] normalizeDiagonalMovement(int dx, int dy, int speed) {
+        if (dx != 0 && dy != 0) {
+            double length = Math.sqrt(dx * dx + dy * dy);
+            int vx = (int) Math.round((dx / length) * speed);
+            int vy = (int) Math.round((dy / length) * speed);
+            return new int[]{vx, vy};
+        }
+        return new int[]{dx * speed, dy * speed};
+    }
+
+    /**
+     * Updates player world position based on velocity.
+     * @param dx player horizontal velocity
+     * @param dy player vertical velocity
+     */
+    private void updateWorldPosition(int dx, int dy) {
+        setWorldX(getWorldX() + dx);
+        setWorldY(getWorldY() + dy);
     }
 
     /**
@@ -197,49 +243,6 @@ public class Player extends RenderableEntity {
                 }
             }
         }
-    }
-
-    /**
-     * Calculates the player final velocity based on speed and given direction,
-     * unless player collision is enabled
-     * @param direction player movement directions (x, y)
-     * @return player movement velocity (x, y),
-     * (0, 0) if player collision is enabled
-     */
-    private Point calculateFinalVelocity(Point direction) {
-        if (isCollisionOn())
-            return new Point(0, 0);
-
-        int speed = this.getSpeed();
-        return normalizeDiagonalMovement(direction.x, direction.y, speed);
-    }
-
-    /**
-     * Normalizes diagonal movement by converting it into a unary vector
-     * (same direction but a length of exactly 1) and then multiplying it by player speed
-     * @param dx player horizontal movement
-     * @param dy player vertical movement
-     * @param speed player speed to apply as scalar after normalization
-     * @return normalized player movement velocity (x, y)
-     */
-    private Point normalizeDiagonalMovement(int dx, int dy, int speed) {
-        if (dx != 0 && dy != 0) {
-            double length = Math.hypot(dx, dy);             // sqrt(dx^2 + dy^2)
-            return new Point(
-                    (int) Math.round((dx / length) * speed),
-                    (int) Math.round((dy / length) * speed)
-            );
-        }
-        return new Point(dx * speed, dy * speed);
-    }
-
-    /**
-     * Updates player world position based on his current velocity
-     * @param velocity player movement velocity (x, y)
-     */
-    private void updateWorldPosition(Point velocity) {
-        setWorldX(getWorldX() + velocity.x);
-        setWorldY(getWorldY() + velocity.y);
     }
 
     /**
