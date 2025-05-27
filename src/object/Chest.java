@@ -5,19 +5,20 @@ import utils.GameUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
-public class Key extends GameObject {
+public class Chest extends GameObject {
 
-    public Key(GamePanel gamePanel) {
-        super("Key", gamePanel);
+    public Chest(GamePanel gamePanel) {
+        super("Chest", gamePanel);
 
         try {
-            BufferedImage img = GameUtils.loadImageSafe("/objects/key.png");
+            BufferedImage img = GameUtils.loadImageSafe("/objects/chest.png");
             this.setImage(img);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        this.setCollision(true);
     }
 }

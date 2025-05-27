@@ -2,6 +2,7 @@ package entity;
 
 import main.GamePanel;
 import main.KeyHandler;
+import object.GameObject;
 import utils.GameUtils;
 
 import javax.imageio.ImageIO;
@@ -10,6 +11,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class Player extends RenderableEntity {
 
@@ -34,6 +36,9 @@ public class Player extends RenderableEntity {
     private static final int COLLISION_BOX_WIDTH = 32;
     private static final int COLLISION_BOX_HEIGHT = 32;
 
+    //TODO temporary (?)
+    int numKeys = 0;
+    private static final int REQUIRED_KEYS = 2;
 
     public Player(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
@@ -41,22 +46,31 @@ public class Player extends RenderableEntity {
         screenX = (GamePanel.SCREEN_WIDTH / 2) - (GamePanel.TILE_SIZE / 2);
         screenY = (GamePanel.SCREEN_HEIGHT / 2) - (GamePanel.TILE_SIZE / 2);
 
-        Rectangle collisionBox = new Rectangle(
-                COLLISION_BOX_OFFSET_X,
-                COLLISION_BOX_OFFSET_Y,
-                COLLISION_BOX_WIDTH,
-                COLLISION_BOX_HEIGHT
-        );
-        this.setSolidArea(collisionBox);
-
+        setCollisionBox();
         setDefaultValues();
         loadSprites();
     }
 
     /**
+     * Set player's collision box (~solidArea) default values
+     */
+    private void setCollisionBox() {
+        this.setSolidAreaDefaultX(COLLISION_BOX_OFFSET_X);
+        this.setSolidAreaDefaultY(COLLISION_BOX_OFFSET_Y);
+
+        Rectangle collisionBox = new Rectangle(
+                getSolidAreaDefaultX(),
+                getSolidAreaDefaultY(),
+                COLLISION_BOX_WIDTH,
+                COLLISION_BOX_HEIGHT
+        );
+        this.setSolidArea(collisionBox);
+    }
+
+    /**
      * Set player default position (X, Y world coordinates) and speed as game starts
      */
-    public void setDefaultValues() {
+    private void setDefaultValues() {
         setWorldX(GamePanel.WORLD_WIDTH / 2);
         setWorldY(GamePanel.WORLD_HEIGHT / 2);
         setSpeed(DEFAULT_SPEED);
@@ -101,7 +115,7 @@ public class Player extends RenderableEntity {
         }
 
         updateFacingDirection(movementDirection);
-        handleCollisionCheck();
+        handleCollisions();
 
         Point finalVelocity = calculateFinalVelocity(movementDirection);
         updateWorldPosition(finalVelocity);
@@ -141,11 +155,48 @@ public class Player extends RenderableEntity {
     }
 
     /**
+     * Handles player collisions
+     */
+    private void handleCollisions() {
+        handleTileCollisions();
+        handleObjectCollisions();
+    }
+
+    /**
      * Enables player collision if checked tiles are collidable
      */
-    private void handleCollisionCheck() {
+    private void handleTileCollisions() {
         this.setCollisionOn(false);
-        gamePanel.getCollisionCheker().checkTileCollision(this);
+        gamePanel.getCollisionChecker().checkTile(this);
+    }
+
+    /**
+     * Handles player interaction with various game objects.
+     * Enables player collision if checked object is collidable
+     */
+    private void handleObjectCollisions() {
+        int gameObjIndex = gamePanel.getCollisionChecker().checkObject(this, true);
+
+        if (gameObjIndex == -1) return;
+
+        ArrayList<GameObject> gameObjects = gamePanel.getGameObjects();
+        String gameObjName = gameObjects.get(gameObjIndex).getName();
+
+        switch (gameObjName) {
+            case "Key" -> {
+                this.numKeys++;
+                gameObjects.remove(gameObjIndex);
+                System.out.println("Key: " + this.numKeys);
+            }
+            case "Chest" -> {
+                if (this.numKeys >= REQUIRED_KEYS) {
+                    gameObjects.remove(gameObjIndex);
+                    System.out.println("Treasure found!!!");
+                } else {
+                    System.out.println("Keys found: " + this.numKeys);
+                }
+            }
+        }
     }
 
     /**
@@ -215,7 +266,6 @@ public class Player extends RenderableEntity {
      * Returns current player sprite based on facing direction, current animation frame and player state (idle/run)
      * @return current player sprite as BufferedImage
      */
-    @Override
     public BufferedImage getCurrentSprite() {
         int directionRow = switch (this.getFacing()) {
             case DOWN -> 0;

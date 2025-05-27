@@ -40,7 +40,7 @@ public class GamePanel extends JPanel implements Runnable{
     // GAME ELEMENTS
     private final Player player = new Player(this);
     private final TileManager tileManager = new TileManager(this);
-    private final CollisionCheker collisionCheker = new CollisionCheker(this);
+    private final CollisionChecker collisionChecker = new CollisionChecker(this);
     private final AssetSetter assetSetter = new AssetSetter(this);
     private ArrayList<GameObject> gameObjects = new ArrayList<>();
 
@@ -133,7 +133,7 @@ public class GamePanel extends JPanel implements Runnable{
     // Getter methods
     public Player getPlayer() { return player; }
     public TileManager getTileManager() { return tileManager; }
-    public CollisionCheker getCollisionCheker() { return collisionCheker; }
+    public CollisionChecker getCollisionChecker() { return collisionChecker; }
     public KeyHandler getGameKeyHandler() { return gameKeyHandler; }
     public AssetSetter getAssetSetter() { return assetSetter; }
     public ArrayList<GameObject> getGameObjects() { return gameObjects; }

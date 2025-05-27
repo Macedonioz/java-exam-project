@@ -1,5 +1,6 @@
 package main;
 
+import object.Chest;
 import object.GameObject;
 import object.Key;
 
@@ -25,6 +26,7 @@ public class AssetSetter {
     public void setGameObjects() {
         addGameObject(new Key(gamePanel), 24, 36);
         addGameObject(new Key(gamePanel), 30, 14);
+        addGameObject(new Chest(gamePanel), 24, 24);
     }
 
 }

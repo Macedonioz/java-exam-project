@@ -12,7 +12,11 @@ public class GameObject {
     private final String name;
     private BufferedImage image;
     private boolean hasCollision;
+
     private int worldX, worldY;
+    // TODO CHANGE THIS SHIT
+    private Rectangle solidArea = new Rectangle(0, 0, GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
+    private int solidAreaDefaultX, solidAreaDefaultY;
 
     public GameObject(String name, GamePanel gamePanel) {
         this.name = name;
@@ -71,6 +75,9 @@ public class GameObject {
     public boolean isCollidable() { return hasCollision; }
     public int getWorldX() { return worldX; }
     public int getWorldY() { return worldY; }
+    public Rectangle getSolidArea() { return solidArea; }
+    public int getSolidAreaDefaultX() { return solidAreaDefaultX; }
+    public int getSolidAreaDefaultY() { return solidAreaDefaultY; }
 
     // Setter methods
     public void setImage(BufferedImage image) { this.image = image; }

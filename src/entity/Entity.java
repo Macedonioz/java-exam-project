@@ -11,6 +11,7 @@ public abstract class Entity {
 
     private Rectangle solidArea;
     private boolean collisionOn = false;
+    private int solidAreaDefaultX, solidAreaDefaultY;
 
     public enum Direction {
         DOWN, LEFT, RIGHT, UP;
@@ -25,7 +26,8 @@ public abstract class Entity {
 
     public Rectangle getSolidArea() { return solidArea; }
     public boolean isCollisionOn() { return collisionOn; }
-
+    public int getSolidAreaDefaultX() { return solidAreaDefaultX; }
+    public int getSolidAreaDefaultY() { return solidAreaDefaultY; }
 
     // Setter methods
     public void setWorldX(int worldX) { this.worldX = worldX; }
@@ -38,6 +40,8 @@ public abstract class Entity {
 
     public void setSolidArea(Rectangle solidArea) { this.solidArea = solidArea; }
     public void setCollisionOn(boolean collisionOn) { this.collisionOn = collisionOn; }
+    public void setSolidAreaDefaultY(int solidAreaDefaultY) { this.solidAreaDefaultY = solidAreaDefaultY; }
+    public void setSolidAreaDefaultX(int solidAreaDefaultX) { this.solidAreaDefaultX = solidAreaDefaultX; }
 
     // Abstract methods
     public abstract void update();
