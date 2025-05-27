@@ -18,5 +18,5 @@ public abstract class RenderableEntity extends Entity {
     // Abstract methods
     protected abstract void loadSprites();
     protected abstract BufferedImage getCurrentSprite();
-    public abstract void render(Graphics g);
+    public abstract void draw(Graphics g);
 }

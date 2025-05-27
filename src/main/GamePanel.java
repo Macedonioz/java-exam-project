@@ -1,13 +1,16 @@
 package main;
 
 import entity.Player;
+import object.GameObject;
 import tile.TileManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
- * Game panel where all game components are displayed
+ * Game panel where all game components are displayed.
+ * Responsible for Game Loop update and rendering
  * @author LC
  */
 public class GamePanel extends JPanel implements Runnable{
@@ -30,12 +33,16 @@ public class GamePanel extends JPanel implements Runnable{
     // FPS
     private static final int FPS = 60;
 
-    private final KeyHandler gameKeyHandler = new KeyHandler();
+    // GAME ENGINE COMPONENTS
     private Thread gameThread;
+    private final KeyHandler gameKeyHandler = new KeyHandler();
 
-    private Player player = new Player(this);
-    private TileManager tileManager = new TileManager(this);
-    private CollisionCheker collisionCheker = new CollisionCheker(this);
+    // GAME ELEMENTS
+    private final Player player = new Player(this);
+    private final TileManager tileManager = new TileManager(this);
+    private final CollisionCheker collisionCheker = new CollisionCheker(this);
+    private final AssetSetter assetSetter = new AssetSetter(this);
+    private ArrayList<GameObject> gameObjects = new ArrayList<>();
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -44,6 +51,10 @@ public class GamePanel extends JPanel implements Runnable{
         this.addKeyListener(gameKeyHandler);
         this.setFocusable(true);                    // GamePanel can be "focused" to receive key input
         requestFocusInWindow();                     // Request input focus for GamePanel
+    }
+
+    public void setupGameObjects() {
+        assetSetter.setGameObjects();
     }
 
     /**
@@ -105,14 +116,25 @@ public class GamePanel extends JPanel implements Runnable{
         super.paintComponent(g);                    // to ensure proper rendering hierarchy and clear background
         Graphics2D g2d = (Graphics2D) g;            // extends Graphics providing more advanced features
 
-        tileManager.render(g2d);
-        player.render(g2d);
+        // TILES
+        tileManager.draw(g2d);
+
+        // OBJECTS
+        for (GameObject gameObject : gameObjects) {
+            gameObject.draw(g2d);
+        }
+
+        // PLAYER
+        player.draw(g2d);
 
         // disposal of Graphics object and release of system resources that it is using is handled by Swing
     }
 
+    // Getter methods
     public Player getPlayer() { return player; }
     public TileManager getTileManager() { return tileManager; }
     public CollisionCheker getCollisionCheker() { return collisionCheker; }
     public KeyHandler getGameKeyHandler() { return gameKeyHandler; }
+    public AssetSetter getAssetSetter() { return assetSetter; }
+    public ArrayList<GameObject> getGameObjects() { return gameObjects; }
 }

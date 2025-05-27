@@ -47,18 +47,16 @@ public class KeyHandler extends KeyAdapter {
         rightPressed = false;
     }
 
+    // Getter methods
     public boolean isUpPressed() {
         return upPressed;
     }
-
     public boolean isDownPressed() {
         return downPressed;
     }
-
     public boolean isLeftPressed() {
         return leftPressed;
     }
-
     public boolean isRightPressed() {
         return rightPressed;
     }

@@ -2,6 +2,7 @@ package tile;
 
 import entity.Player;
 import main.GamePanel;
+import utils.GameUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -27,24 +28,15 @@ public class TileManager {
         loadTileMap("/maps/world01.txt");
     }
 
-    // funzione privata di loadTiles
-    private BufferedImage loadTile(String path) throws IOException {
-        InputStream is = getClass().getResourceAsStream(path);
-        if (is == null)
-            throw new IOException("Tile not found: " + path);
-        return ImageIO.read(is);
-    }
-
-    // TODO gestire sprite sheet
     /**
      * Loads tiles from tiles dir in res folder
      */
     public void loadTiles() {
         try {
-            tiles.add(new Tile(loadTile("/tiles/grass_01.png"), false));
-            tiles.add(new Tile(loadTile("/tiles/sand_01.png"), false));
-            tiles.add(new Tile(loadTile("/tiles/water_01.png"), true));
-            tiles.add(new Tile(loadTile("/tiles/tree_01.png"), true));
+            tiles.add(new Tile(GameUtils.loadImageSafe("/tiles/grass_01.png"), false));
+            tiles.add(new Tile(GameUtils.loadImageSafe("/tiles/sand_01.png"), false));
+            tiles.add(new Tile(GameUtils.loadImageSafe("/tiles/water_01.png"), true));
+            tiles.add(new Tile(GameUtils.loadImageSafe("/tiles/tree_01.png"), true));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -52,7 +44,6 @@ public class TileManager {
         }
     }
 
-    // TODO add security measures (split, parse)
     /**
      * Loads tiles ID map into a 2D array
      * @param path file path of the world map (.txt) to load
@@ -124,10 +115,15 @@ public class TileManager {
         }
     }
 
-    public void render(Graphics2D g2) {
+    /**
+     * Draws the game's tile map area visible by the player to the screen
+     * @param g2 Graphics context used for drawing
+     */
+    public void draw(Graphics2D g2) {
         renderTileMap(g2);
     }
 
+    // Getter methods
     public int[][] getMapTileNum() { return mapTileNum; }
     public ArrayList<Tile> getTiles() { return tiles; }
 }

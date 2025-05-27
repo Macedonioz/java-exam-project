@@ -2,6 +2,7 @@ package entity;
 
 import main.GamePanel;
 import main.KeyHandler;
+import utils.GameUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -9,7 +10,6 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
 
 public class Player extends RenderableEntity {
 
@@ -24,9 +24,9 @@ public class Player extends RenderableEntity {
     private static final int SPRITE_ROWS = 4;                   // a row in the sprite sheet for every direction
 
     // Animation
+    private static final int ANIMATION_FRAME_DELAY = 10;                // animation speed
     private int frameDelayCounter = 0;                          // to update player animation frames
     private int currentAnimationFrame = 0;
-    private static final int ANIMATION_FRAME_DELAY = 10;                // animation speed
 
     // Collision
     private static final int COLLISION_BOX_OFFSET_X = 8;
@@ -69,59 +69,14 @@ public class Player extends RenderableEntity {
     @Override
     public void loadSprites() {
         try {
-            this.setIdleFrames(sliceSpriteSheet(loadImageSafe("/sprites/player/player_idle.png")));
-            this.setRunFrames(sliceSpriteSheet(loadImageSafe("/sprites/player/player_run.png")));
+            this.setIdleFrames(GameUtils.sliceSpriteSheet(GameUtils.loadImageSafe("/sprites/player/player_idle.png"),
+                    GamePanel.ORIGINAL_TILE_SIZE, SPRITE_ROWS, NUM_ANIMATION_FRAMES));
+            this.setRunFrames(GameUtils.sliceSpriteSheet(GameUtils.loadImageSafe("/sprites/player/player_run.png"),
+                    GamePanel.ORIGINAL_TILE_SIZE, SPRITE_ROWS, NUM_ANIMATION_FRAMES));
 
         } catch (IOException e) {
             System.err.println("Error loading player sprites:" + e.getMessage());
             e.printStackTrace();
-        }
-    }
-
-    /**
-     * Slice given sprite sheet into its single sprites.
-     * Supports sprite sheets of the following format:
-     * - single frame --> ORIGINAL_TILE_SIZE x ORIGINAL_TILE_SIZE (es. 16x16)
-     * - number of rows --> SPRITE_ROWS
-     * - number of animation frames per row --> NUM_ANIMATION_FRAMES
-     * - no empty pixels between frames (frames must be "attached" to each other)
-     * @param sheet the sprite sheet to slice
-     * @return an array containing the individual sprites (as BufferedImages)
-     */
-    private BufferedImage[] sliceSpriteSheet(BufferedImage sheet) {
-        BufferedImage[] frames = new BufferedImage[SPRITE_ROWS * NUM_ANIMATION_FRAMES];
-
-        int frameSize = GamePanel.ORIGINAL_TILE_SIZE;
-
-        for (int i = 0; i < SPRITE_ROWS; i++) {
-            for (int j = 0; j < NUM_ANIMATION_FRAMES; j++) {
-                int frameIndex = (i * NUM_ANIMATION_FRAMES) + j;
-                frames[frameIndex] = sheet.getSubimage(j * frameSize, i * frameSize,
-                        frameSize, frameSize);
-            }
-        }
-
-        return frames;
-    }
-
-    /**
-     * Loads image safely from given path
-     * @param path file path from which to open image
-     * @return the image if loading was succesfull
-     * @throws FileNotFoundException if file was not found
-     * @throws IOException if image format is invalid
-     */
-    private BufferedImage loadImageSafe(String path) throws IOException {
-        try (InputStream is = getClass().getResourceAsStream(path)) {
-            if (is == null) {
-                throw new FileNotFoundException("File not found: " + path);
-            }
-
-            BufferedImage image = ImageIO.read(is);
-            if (image == null) {
-                throw new IOException("Invalid image format!");
-            }
-            return image;
         }
     }
 
@@ -247,11 +202,11 @@ public class Player extends RenderableEntity {
     }
 
     /**
-     * Renders current player sprite to the screen
+     * Draws current player sprite to the screen
      * @param g Graphics class to actually draw the player
      */
     @Override
-    public void render(Graphics g) {
+    public void draw(Graphics g) {
         g.drawImage(getCurrentSprite(), screenX, screenY,
                     GamePanel.TILE_SIZE, GamePanel.TILE_SIZE, null);
     }
