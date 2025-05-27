@@ -5,17 +5,17 @@ import java.awt.image.BufferedImage;
 
 public abstract class RenderableEntity extends Entity {
 
-    protected BufferedImage[] idleFrames, runFrames;
-    protected Direction facing = Direction.DOWN;
-    protected boolean isMoving = false;
+    private BufferedImage[] idleFrames, runFrames;
 
-    protected enum Direction {
-        DOWN, LEFT, RIGHT, UP;
-    }
+    // Getter methods
+    public BufferedImage[] getRunFrames() { return runFrames; }
+    public BufferedImage[] getIdleFrames() { return idleFrames; }
 
-    protected Direction getFacing() { return facing; }
-    public boolean isMoving() { return isMoving; }
+    // Setter methods
+    public void setRunFrames(BufferedImage[] runFrames) { this.runFrames = runFrames; }
+    public void setIdleFrames(BufferedImage[] idleFrames) { this.idleFrames = idleFrames; }
 
+    // Abstract methods
     protected abstract void loadSprites();
     protected abstract BufferedImage getCurrentSprite();
     public abstract void render(Graphics g);

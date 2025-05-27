@@ -35,17 +35,16 @@ public class TileManager {
         return ImageIO.read(is);
     }
 
-    // TODO gestire sprite sheet (più tardi)
-
+    // TODO gestire sprite sheet
     /**
      * Loads tiles from tiles dir in res folder
      */
     public void loadTiles() {
         try {
             tiles.add(new Tile(loadTile("/tiles/grass_01.png"), false));
-            tiles.add(new Tile(loadTile("/tiles/path_01.png"), false));
-            tiles.add(new Tile(loadTile("/tiles/water_01.png"), false));
-            tiles.add(new Tile(loadTile("/tiles/tree_01.png"), false));
+            tiles.add(new Tile(loadTile("/tiles/sand_01.png"), false));
+            tiles.add(new Tile(loadTile("/tiles/water_01.png"), true));
+            tiles.add(new Tile(loadTile("/tiles/tree_01.png"), true));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -54,7 +53,6 @@ public class TileManager {
     }
 
     // TODO add security measures (split, parse)
-
     /**
      * Loads tiles ID map into a 2D array
      * @param path file path of the world map (.txt) to load
@@ -129,4 +127,7 @@ public class TileManager {
     public void render(Graphics2D g2) {
         renderTileMap(g2);
     }
+
+    public int[][] getMapTileNum() { return mapTileNum; }
+    public ArrayList<Tile> getTiles() { return tiles; }
 }

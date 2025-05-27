@@ -22,8 +22,8 @@ public class GamePanel extends JPanel implements Runnable{
     public static final int SCREEN_HEIGHT = MAX_SCREEN_ROW * TILE_SIZE;
 
     // WORLD SETTINGS
-    public static final int MAX_WORLD_COL = 30;
-    public static final int MAX_WORLD_ROW = 30;
+    public static final int MAX_WORLD_COL = 50;
+    public static final int MAX_WORLD_ROW = 50;
     public static final int WORLD_WIDTH = TILE_SIZE * MAX_WORLD_COL;
     public static final int WORLD_HEIGHT = TILE_SIZE * MAX_WORLD_ROW;
 
@@ -33,8 +33,9 @@ public class GamePanel extends JPanel implements Runnable{
     private final KeyHandler gameKeyHandler = new KeyHandler();
     private Thread gameThread;
 
-    private Player player = new Player(this, gameKeyHandler);
+    private Player player = new Player(this);
     private TileManager tileManager = new TileManager(this);
+    private CollisionCheker collisionCheker = new CollisionCheker(this);
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -76,12 +77,8 @@ public class GamePanel extends JPanel implements Runnable{
                 delta--;
             }
 
-            // Small sleep to reduce CPU usage
-            try {
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            // to reduce CPU usage
+            Thread.yield();
         }
     }
 
@@ -106,7 +103,6 @@ public class GamePanel extends JPanel implements Runnable{
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);                    // to ensure proper rendering hierarchy and clear background
-
         Graphics2D g2d = (Graphics2D) g;            // extends Graphics providing more advanced features
 
         tileManager.render(g2d);
@@ -116,4 +112,7 @@ public class GamePanel extends JPanel implements Runnable{
     }
 
     public Player getPlayer() { return player; }
+    public TileManager getTileManager() { return tileManager; }
+    public CollisionCheker getCollisionCheker() { return collisionCheker; }
+    public KeyHandler getGameKeyHandler() { return gameKeyHandler; }
 }
