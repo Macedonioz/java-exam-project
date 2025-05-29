@@ -1,6 +1,7 @@
 package utils;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -48,5 +49,28 @@ public class GameUtils {
         }
 
         return sprites;
+    }
+
+/**
+ * Loads a custom font from the specified res path and applies given style and size.
+ * @param path The relative path to the font file
+ * @param fontSize The desired font size
+ * @param fontStyle The style of the font (Font.PLAIN, Font.BOLD, Font.ITALIC)
+ * @return The loaded Font object, null if the font could not be loaded.
+ */
+    public static Font loadFont(String path, float fontSize, int fontStyle) {
+        Font font = null;
+
+        try (InputStream is = GameUtils.class.getResourceAsStream(path)) {
+            if (is != null) {
+                font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(fontStyle, fontSize);
+            } else {
+                System.err.println("Font file not found!");
+            }
+        } catch (FontFormatException | IOException e) {
+            e.printStackTrace();
+        }
+
+        return font;
     }
 }

@@ -14,7 +14,7 @@ public abstract class Entity {
     private int solidAreaDefaultX, solidAreaDefaultY;
 
     public enum Direction {
-        DOWN, LEFT, RIGHT, UP;
+        DOWN, LEFT, RIGHT, UP
     }
 
     // Getter methods

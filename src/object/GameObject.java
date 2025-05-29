@@ -1,7 +1,7 @@
 package object;
 
 import entity.Player;
-import main.GamePanel;
+import game_logic.GamePanel;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -14,8 +14,7 @@ public class GameObject {
     private boolean hasCollision;
 
     private int worldX, worldY;
-    // TODO CHANGE THIS SHIT
-    private Rectangle solidArea = new Rectangle(0, 0, GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
+    private final Rectangle solidArea = new Rectangle(0, 0, GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
     private int solidAreaDefaultX, solidAreaDefaultY;
 
     public GameObject(String name, GamePanel gamePanel) {

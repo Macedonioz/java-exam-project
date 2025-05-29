@@ -1,16 +1,15 @@
 package entity;
 
-import main.GamePanel;
-import main.KeyHandler;
+import game_logic.GamePanel;
+import game_logic.KeyHandler;
+import game_logic.Sound;
+import game_logic.UI;
 import object.GameObject;
 import utils.GameUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 public class Player extends RenderableEntity {
@@ -21,24 +20,25 @@ public class Player extends RenderableEntity {
     private final int screenX;
     private final int screenY;
 
-    // Sprites
+    // SPRITE
     private static final int NUM_ANIMATION_FRAMES = 4;          // number of animation frames for every sprite row
     private static final int SPRITE_ROWS = 4;                   // a row in the sprite sheet for every direction
 
-    // Animation
+    // ANIMATION
     private static final int ANIMATION_FRAME_DELAY = 10;                // animation speed
     private int frameDelayCounter = 0;                          // to update player animation frames
     private int currentAnimationFrame = 0;
 
-    // Collision
+    // COLLISION
     private static final int COLLISION_BOX_OFFSET_X = 8;
     private static final int COLLISION_BOX_OFFSET_Y = 16;
     private static final int COLLISION_BOX_WIDTH = 32;
     private static final int COLLISION_BOX_HEIGHT = 32;
 
-    //TODO temporary (?)
-    int numKeys = 0;
+    // GAME PARAMS
+    private int numKeys = 0;
     private static final int REQUIRED_KEYS = 4;
+    private static final float SPEED_BOOST_MULTIPLIER = 1.5f;
 
     public Player(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
@@ -217,7 +217,7 @@ public class Player extends RenderableEntity {
     }
 
     /**
-     * Handles player interaction with various game objects.
+     * Handles player interaction with game objects on collision.
      * Enables player collision if checked object is collidable
      */
     private void handleObjectCollisions() {
@@ -230,17 +230,29 @@ public class Player extends RenderableEntity {
 
         switch (gameObjName) {
             case "Key" -> {
-                this.numKeys++;
+                gamePanel.playSoundEffect(Sound.PICK_UP_KEY);
+
                 gameObjects.remove(gameObjIndex);
-                System.out.println("Key: " + this.numKeys);
+                this.numKeys++;
+                gamePanel.getUi().showMessage("You got a key!");
             }
             case "Chest" -> {
                 if (this.numKeys >= REQUIRED_KEYS) {
-                    gameObjects.remove(gameObjIndex);
-                    System.out.println("Treasure found!!!");
+                    gamePanel.getUi().endGame();
+                    gamePanel.stopMusic();
+                    gamePanel.playSoundEffect(Sound.VICTORY);
+
                 } else {
-                    System.out.println("Keys found: " + this.numKeys);
+                    gamePanel.getUi().showMessage("You need " + (REQUIRED_KEYS - this.numKeys)
+                            + " more keys to open the chest!");
                 }
+            }
+            case "Boots" -> {
+                gamePanel.playSoundEffect(Sound.POWER_UP);
+
+                gameObjects.remove(gameObjIndex);
+                this.setSpeed((int) (this.getSpeed() * SPEED_BOOST_MULTIPLIER));
+                gamePanel.getUi().showMessage("Speed up!");
             }
         }
     }
@@ -287,4 +299,5 @@ public class Player extends RenderableEntity {
     // Getter methods
     public int getScreenX() { return screenX; }
     public int getScreenY() { return screenY; }
+    public int getNumKeys() { return numKeys; }
 }

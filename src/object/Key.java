@@ -1,11 +1,9 @@
 package object;
 
-import main.GamePanel;
+import game_logic.GamePanel;
 import utils.GameUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 
 public class Key extends GameObject {

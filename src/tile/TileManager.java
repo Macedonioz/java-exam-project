@@ -1,12 +1,10 @@
 package tile;
 
 import entity.Player;
-import main.GamePanel;
+import game_logic.GamePanel;
 import utils.GameUtils;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,9 +13,9 @@ import java.util.ArrayList;
 
 public class TileManager {
 
-    private GamePanel gamePanel;
-    private ArrayList<Tile> tiles;
-    private int[][] mapTileNum;
+    private final GamePanel gamePanel;
+    private final ArrayList<Tile> tiles;
+    private final int[][] mapTileNum;
 
     public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
