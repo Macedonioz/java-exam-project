@@ -47,6 +47,10 @@ public class GamePanel extends JPanel implements Runnable{
     private final Sound soundEffect = new Sound();
     private final UI ui = new UI(this);
 
+    // DEBUG
+    private final Font debugFont = new Font("Monospaced", Font.BOLD, 25);
+    private final Color debugColor = Color.WHITE;
+
     public GamePanel() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
         this.setBackground(Color.BLACK);
@@ -123,7 +127,8 @@ public class GamePanel extends JPanel implements Runnable{
 
     /**
      * Handles custom rendering of game elements.
-     * This method is automatically called by Swing when the component needs to be redrawn
+     * This method is automatically called by Swing when the component needs to be redrawn.
+     * Disposal of Graphics object and release of system resources that it is using is handled by Swing
      * @param g The Graphics context used for rendering. This is provided by Swing's painting system.
      *          It represents the drawing surface of the component.
      */
@@ -131,6 +136,13 @@ public class GamePanel extends JPanel implements Runnable{
     public void paintComponent(Graphics g) {
         super.paintComponent(g);                    // to ensure proper rendering hierarchy and clear background
         Graphics2D g2 = (Graphics2D) g;            // extends Graphics providing more advanced features
+
+        // DEBUG
+        boolean debug = gameKeyHandler.isDebugModeOn();
+        long drawStart = 0;
+        if (debug) {
+            drawStart = System.nanoTime();
+        }
 
         // TILES
         tileManager.draw(g2);
@@ -146,7 +158,30 @@ public class GamePanel extends JPanel implements Runnable{
         // UI
         ui.draw(g2);
 
-        // disposal of Graphics object and release of system resources that it is using is handled by Swing
+        // DEBUG
+        if (debug) {
+            drawDebugInfo(drawStart, g2);
+            player.drawDebug(g2);
+        }
+    }
+
+    private void drawDebugInfo(long drawStart, Graphics2D g2) {
+        // Save original font properties
+        Font originalFont = g2.getFont();
+        Color originalColor = g2.getColor();
+
+        // Set debug font properties
+        g2.setFont(debugFont);
+        g2.setColor(debugColor);
+
+        long drawEnd = System.nanoTime();
+        long timePassed = (drawEnd - drawStart) / 1_000;            // draw time in micro seconds (µs)
+        g2.drawString("Draw Time: " + timePassed + " µs", 20, 550);
+        System.out.println("Draw Time: " + timePassed + " µs");
+
+        // Restore font properties
+        g2.setFont(originalFont);
+        g2.setColor(originalColor);
     }
 
     public void playMusic(int soundID) {

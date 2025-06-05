@@ -55,8 +55,7 @@ public class GameObject {
         int screenY = this.worldY - playerWorldY + playerScreenY;
 
         if (isObjectVisible(worldX, worldY, playerWorldX, playerWorldY, playerScreenX, playerScreenY)) {
-            g2.drawImage(image, screenX, screenY,
-                    GamePanel.TILE_SIZE, GamePanel.TILE_SIZE, null);
+            g2.drawImage(image, screenX, screenY, null);
         }
     }
 

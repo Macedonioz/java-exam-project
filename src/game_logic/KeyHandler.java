@@ -8,15 +8,21 @@ import java.awt.event.KeyEvent;
 public class KeyHandler extends KeyAdapter {
 
     private boolean upPressed, downPressed, leftPressed, rightPressed;
+    private boolean debugMode = false;
 
     @Override
     public void keyPressed(KeyEvent e) {
-        updateKeyState(e.getKeyCode(), true);
+        updateDirKeyState(e.getKeyCode(), true);
+
+        // ENTER DEBUG MODE IF QUOTE(') IS PRESSED
+        if (e.getKeyCode() == KeyEvent.VK_QUOTE) {
+            debugMode = !debugMode;
+        }
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-        updateKeyState(e.getKeyCode(), false);
+        updateDirKeyState(e.getKeyCode(), false);
     }
 
     /**
@@ -24,16 +30,13 @@ public class KeyHandler extends KeyAdapter {
      * @param keyCode the key code of the key event
      * @param isPressed true if the key is pressed, false if released
      */
-    private void updateKeyState(int keyCode, boolean isPressed) {
+    private void updateDirKeyState(int keyCode, boolean isPressed) {
         // Java enhanced switch statement
         switch (keyCode) {
             case KeyEvent.VK_W, KeyEvent.VK_UP -> upPressed = isPressed;
             case KeyEvent.VK_S, KeyEvent.VK_DOWN  -> downPressed = isPressed;
             case KeyEvent.VK_A, KeyEvent.VK_LEFT -> leftPressed = isPressed;
             case KeyEvent.VK_D, KeyEvent.VK_RIGHT -> rightPressed = isPressed;
-            default -> {
-                // Optional: handle other keys if needed
-            }
         }
     }
 
@@ -48,16 +51,9 @@ public class KeyHandler extends KeyAdapter {
     }
 
     // Getter methods
-    public boolean isUpPressed() {
-        return upPressed;
-    }
-    public boolean isDownPressed() {
-        return downPressed;
-    }
-    public boolean isLeftPressed() {
-        return leftPressed;
-    }
-    public boolean isRightPressed() {
-        return rightPressed;
-    }
+    public boolean isUpPressed() { return upPressed; }
+    public boolean isDownPressed() { return downPressed; }
+    public boolean isLeftPressed() { return leftPressed; }
+    public boolean isRightPressed() { return rightPressed; }
+    public boolean isDebugModeOn() {return debugMode;}
 }

@@ -17,5 +17,6 @@ public abstract class RenderableEntity extends Entity {
 
     // Abstract methods
     protected abstract void loadSprites();
-    public abstract void draw(Graphics g);
+    public abstract void draw(Graphics2D g2);
+    public abstract void drawDebug(Graphics2D g2);
 }

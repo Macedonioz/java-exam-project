@@ -3,8 +3,8 @@ package entity;
 import game_logic.GamePanel;
 import game_logic.KeyHandler;
 import game_logic.Sound;
-import game_logic.UI;
 import object.GameObject;
+import tile.Tile;
 import utils.GameUtils;
 
 import java.awt.*;
@@ -82,15 +82,27 @@ public class Player extends RenderableEntity {
      */
     @Override
     public void loadSprites() {
+
+        this.setIdleFrames(getPlayerSheet("/sprites/player/player_idle.png"));
+        this.setRunFrames(getPlayerSheet("/sprites/player/player_run.png"));
+    }
+
+    // Return sliced and scaled player sprite sheet at given path
+    private BufferedImage[] getPlayerSheet(String path) {
         try {
-            this.setIdleFrames(GameUtils.sliceSpriteSheet(GameUtils.loadImageSafe("/sprites/player/player_idle.png"),
-                    GamePanel.ORIGINAL_TILE_SIZE, SPRITE_ROWS, NUM_ANIMATION_FRAMES));
-            this.setRunFrames(GameUtils.sliceSpriteSheet(GameUtils.loadImageSafe("/sprites/player/player_run.png"),
-                    GamePanel.ORIGINAL_TILE_SIZE, SPRITE_ROWS, NUM_ANIMATION_FRAMES));
+            BufferedImage[] sprites = GameUtils.sliceSpriteSheet(GameUtils.loadImageSafe(path),
+                                      GamePanel.ORIGINAL_TILE_SIZE, SPRITE_ROWS, NUM_ANIMATION_FRAMES);
+
+            for (int i = 0; i < sprites.length; i++) {
+                sprites[i] = GameUtils.scaleImage(sprites[i], GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
+            }
+
+            return sprites;
 
         } catch (IOException e) {
             System.err.println("Error loading player sprites:" + e.getMessage());
             e.printStackTrace();
+            return new BufferedImage[0];
         }
     }
 
@@ -269,12 +281,29 @@ public class Player extends RenderableEntity {
 
     /**
      * Draws current player sprite to the screen
-     * @param g Graphics class to actually draw the player
+     * @param g2 The Graphics2D context to draw on
      */
     @Override
-    public void draw(Graphics g) {
-        g.drawImage(getCurrentSprite(), screenX, screenY,
-                    GamePanel.TILE_SIZE, GamePanel.TILE_SIZE, null);
+    public void draw(Graphics2D g2) {
+        g2.drawImage(getCurrentSprite(), screenX, screenY,null);
+    }
+
+    /**
+     * Draws player hitbox when in debug mode
+     * @param g2 The Graphics2D context to draw on
+     */
+    @Override
+    public void drawDebug(Graphics2D g2) {
+        // Get original color of Graphics context
+        Color originalColor = g2.getColor();
+
+        g2.setColor(Color.RED);
+        Rectangle hitbox = getSolidArea();
+        g2.drawRect(screenX + hitbox.x, screenY + hitbox.y,
+                hitbox.width, hitbox.height);
+
+        // Restore original Graphics color after drawing operation
+        g2.setColor(originalColor);
     }
 
     /**
@@ -294,7 +323,6 @@ public class Player extends RenderableEntity {
 
         return frames[frameIndex];
     }
-
 
     // Getter methods
     public int getScreenX() { return screenX; }

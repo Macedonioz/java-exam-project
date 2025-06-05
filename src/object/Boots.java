@@ -12,7 +12,8 @@ public class Boots extends GameObject {
         super("Boots", gamePanel);
 
         try {
-            BufferedImage img = GameUtils.loadImageSafe("/objects/boots.png");
+            BufferedImage img = GameUtils.scaleImage(GameUtils.loadImageSafe("/objects/boots.png"),
+                                                     GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
             this.setImage(img);
         } catch (IOException e) {
             e.printStackTrace();

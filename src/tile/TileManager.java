@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.Buffer;
 import java.util.ArrayList;
 
 public class TileManager {
@@ -30,15 +31,30 @@ public class TileManager {
      * Loads tiles from tiles dir in res folder
      */
     public void loadTiles() {
+
+        setupTile("/tiles/grass_01.png", false);
+        setupTile("/tiles/sand_01.png", false);
+        setupTile("/tiles/water_01.png", true);
+        setupTile("/tiles/tree_01.png", true);
+    }
+
+    // Setup tile image and collision property
+    private void setupTile(String path, boolean collision) {
         try {
-            tiles.add(new Tile(GameUtils.loadImageSafe("/tiles/grass_01.png"), false));
-            tiles.add(new Tile(GameUtils.loadImageSafe("/tiles/sand_01.png"), false));
-            tiles.add(new Tile(GameUtils.loadImageSafe("/tiles/water_01.png"), true));
-            tiles.add(new Tile(GameUtils.loadImageSafe("/tiles/tree_01.png"), true));
+            Tile tile = new Tile(
+                    GameUtils.scaleImage(
+                            GameUtils.loadImageSafe(path),
+                            GamePanel.TILE_SIZE,
+                            GamePanel.TILE_SIZE
+                    ),
+                    collision
+            );
+
+            tiles.add(tile);
 
         } catch (IOException e) {
+            System.err.println("Error loading tile images:" + e.getMessage());
             e.printStackTrace();
-            // TODO add placeholder tiles
         }
     }
 
@@ -106,8 +122,7 @@ public class TileManager {
                     int screenX = worldX - playerWorldX + playerScreenX;
                     int screenY = worldY - playerWorldY + playerScreenY;
 
-                    g2.drawImage(tiles.get(tileNum).getImage(), screenX, screenY,
-                                GamePanel.TILE_SIZE, GamePanel.TILE_SIZE, null);
+                    g2.drawImage(tiles.get(tileNum).getImage(), screenX, screenY, null);
                 }
             }
         }

@@ -51,13 +51,13 @@ public class GameUtils {
         return sprites;
     }
 
-/**
- * Loads a custom font from the specified res path and applies given style and size.
- * @param path The relative path to the font file
- * @param fontSize The desired font size
- * @param fontStyle The style of the font (Font.PLAIN, Font.BOLD, Font.ITALIC)
- * @return The loaded Font object, null if the font could not be loaded.
- */
+    /**
+     * Loads a custom font from the specified res path and applies given style and size.
+     * @param path The relative path to the font file
+     * @param fontSize The desired font size
+     * @param fontStyle The style of the font (Font.PLAIN, Font.BOLD, Font.ITALIC)
+     * @return The loaded Font object, null if the font could not be loaded.
+     */
     public static Font loadFont(String path, float fontSize, int fontStyle) {
         Font font = null;
 
@@ -72,5 +72,15 @@ public class GameUtils {
         }
 
         return font;
+    }
+
+    public static BufferedImage scaleImage(BufferedImage originalImage, int newWidth, int newHeight) {
+
+        BufferedImage scaledImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
+        Graphics2D g2 = scaledImage.createGraphics();
+        g2.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+        g2.dispose();
+
+        return scaledImage;
     }
 }

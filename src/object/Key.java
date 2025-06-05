@@ -12,7 +12,8 @@ public class Key extends GameObject {
         super("Key", gamePanel);
 
         try {
-            BufferedImage img = GameUtils.loadImageSafe("/objects/key.png");
+            BufferedImage img = GameUtils.scaleImage(GameUtils.loadImageSafe("/objects/key.png"),
+                    GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
             this.setImage(img);
         } catch (IOException e) {
             e.printStackTrace();

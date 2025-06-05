@@ -12,7 +12,8 @@ public class Chest extends GameObject {
         super("Chest", gamePanel);
 
         try {
-            BufferedImage img = GameUtils.loadImageSafe("/objects/chest.png");
+            BufferedImage img = GameUtils.scaleImage(GameUtils.loadImageSafe("/objects/chest.png"),
+                    GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
             this.setImage(img);
         } catch (IOException e) {
             e.printStackTrace();
