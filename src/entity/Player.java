@@ -83,20 +83,24 @@ public class Player extends RenderableEntity {
     @Override
     public void loadSprites() {
 
-        this.setIdleFrames(getPlayerSheet("/sprites/player/player_idle.png"));
-        this.setRunFrames(getPlayerSheet("/sprites/player/player_run.png"));
+        this.setIdleFrames(loadPlayerSheet("/sprites/player/player_idle.png"));
+        this.setRunFrames(loadPlayerSheet("/sprites/player/player_run.png"));
     }
 
     // Return sliced and scaled player sprite sheet at given path.
     // If image loading failed returns placeholder sprites instead
-    private BufferedImage[] getPlayerSheet(String path) {
+    private BufferedImage[] loadPlayerSheet(String path) {
         try {
-            BufferedImage[] sprites = GameUtils.sliceSpriteSheet(GameUtils.loadImageSafe(path),
-                                      GamePanel.ORIGINAL_TILE_SIZE, SPRITE_ROWS, NUM_ANIMATION_FRAMES);
+            BufferedImage sheet = GameUtils.loadImageSafe(path);
+            BufferedImage[] sprites = GameUtils
+                    .sliceSpriteSheet(sheet, GamePanel.ORIGINAL_TILE_SIZE, SPRITE_ROWS, NUM_ANIMATION_FRAMES)
+                    .toArray(new BufferedImage[0]);
 
             for (int i = 0; i < sprites.length; i++) {
                 sprites[i] = GameUtils.scaleImage(sprites[i], GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
             }
+
+            System.out.println("Loaded " + sprites.length + " player sprites from " + path);
 
             return sprites;
 
@@ -110,7 +114,6 @@ public class Player extends RenderableEntity {
             }
 
             return placeholders;
-
         }
     }
 

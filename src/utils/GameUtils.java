@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class GameUtils {
     /**
@@ -32,23 +33,49 @@ public class GameUtils {
     /**
      * Slice given sprite sheet into its single sprites.
      * Supports sprite sheets with uniform tiles and no padding between frames.
+     * Fully transparent sprites are ignored
      * @param sheet the sprite sheet to slice
      * @param tileSize the width and height of each tile (usually ORIGINAL_TILE_SIZE)
      * @param rows number of rows in the sprite sheet
      * @param spritesPerRow number of sprites per row
-     * @return an array containing the individual sprites (as BufferedImages)
+     * @return an ArrayList containing the individual sprites (as BufferedImages)
      */
-    public static BufferedImage[] sliceSpriteSheet(BufferedImage sheet, int tileSize, int rows, int spritesPerRow) {
-        BufferedImage[] sprites = new BufferedImage[rows * spritesPerRow];
+    public static ArrayList<BufferedImage> sliceSpriteSheet(BufferedImage sheet, int tileSize, int rows, int spritesPerRow) {
+        ArrayList<BufferedImage> sprites = new ArrayList<>();
 
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < spritesPerRow; j++) {
-                int frameIndex = (i * spritesPerRow) + j;
-                sprites[frameIndex] = sheet.getSubimage(j * tileSize, i * tileSize, tileSize, tileSize);
+                int x = j * tileSize;
+                int y = i * tileSize;
+
+                // Check bounds to avoid RasterFormatException
+                if (x + tileSize <= sheet.getWidth() && y + tileSize <= sheet.getHeight()) {
+                    BufferedImage sprite = sheet.getSubimage(x, y, tileSize, tileSize);
+
+                    // Check if sprite is fully transparent
+                    if (!isFullyTransparent(sprite)) {
+                        sprites.add(sprite);
+                    }
+                }
             }
         }
 
         return sprites;
+    }
+
+    // Helper function that checks if given image is fully transparent
+    private static boolean isFullyTransparent(BufferedImage image) {
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+
+                int pixel = image.getRGB(x, y);                                  // color values of single pixel
+                int alpha = new Color(pixel, true).getAlpha();          // pixel transparency (visible if alpha value != 0)
+                if (alpha != 0) {
+                    return false;       // if there is any visible pixel
+                }
+            }
+        }
+        return true;        // if every pixel is transparent
     }
 
     /**

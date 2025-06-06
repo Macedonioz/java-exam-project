@@ -5,6 +5,7 @@ import game_logic.GamePanel;
 import utils.GameUtils;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.Buffer;
 import java.util.ArrayList;
@@ -14,6 +15,46 @@ public class TileManager {
     private final GamePanel gamePanel;
     private final ArrayList<Tile> tiles;
     private final int[][] mapTileNum;
+
+    // SPRITE SHEETS
+    private static final int DEFAULT_SHEET_COLS = 3;
+    private static final int DEFAULT_SHEET_ROWS = 5;
+
+    // COLLISION FLAGS
+    private static final boolean SOLID = true;
+    private static final boolean NON_SOLID = false;
+
+    private static final boolean[] GRASS_FLAGS = {
+            SOLID, SOLID, SOLID,
+            SOLID, NON_SOLID, SOLID,
+            SOLID, SOLID, SOLID,
+            SOLID, SOLID, NON_SOLID,
+            SOLID, SOLID, NON_SOLID
+    };
+
+    private static final boolean[] WATER_FLAGS = {
+            SOLID, SOLID, SOLID,
+            SOLID, SOLID, SOLID,
+            SOLID, SOLID, SOLID,
+            SOLID, SOLID, SOLID,
+            SOLID, SOLID, SOLID
+    };
+
+    private static final boolean[] PATH_FLAGS = {
+            NON_SOLID, NON_SOLID, NON_SOLID,
+            NON_SOLID, NON_SOLID, NON_SOLID,
+            NON_SOLID, NON_SOLID, NON_SOLID,
+            NON_SOLID, NON_SOLID, NON_SOLID,
+            NON_SOLID, NON_SOLID, NON_SOLID
+    };
+
+    private static final boolean[] BEACH_FLAGS = {
+            SOLID, SOLID, SOLID,
+            SOLID, NON_SOLID, SOLID,
+            SOLID, SOLID, SOLID,
+            SOLID, SOLID,
+            SOLID, SOLID
+    };
 
     public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
@@ -29,14 +70,44 @@ public class TileManager {
      */
     public void loadTiles() {
 
-        setupTile("/tiles/grass_01.png", false);
-        setupTile("/tiles/sand_01.png", false);
-        setupTile("/tiles/water_01.png", true);
-        setupTile("/tiles/tree_01.png", true);
+        // [0 -> 3]
+        loadTile("/tiles/grass_01.png", false);
+        loadTile("/tiles/sand_01.png", false);
+        loadTile("/tiles/water_01.png", true);
+        loadTile("/tiles/tree_01.png", true);
+
+        // [4 -> 18 (15)]
+        loadTilesFromSpriteSheet("/tiles/grass_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, GRASS_FLAGS);
+        // [19 -> 33 (15)]
+        loadTilesFromSpriteSheet("/tiles/water_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, WATER_FLAGS);
+        // [34 -> 48 (15)]
+        loadTilesFromSpriteSheet("/tiles/path_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, PATH_FLAGS);
+        // [49 -> 60 (12)]
+        loadTilesFromSpriteSheet("/tiles/beach_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, BEACH_FLAGS);
     }
 
-    // Setup tile image and collision property
-    private void setupTile(String path, boolean collision) {
+    // Loads multiple tiles from sprite sheet at given path.
+    public void loadTilesFromSpriteSheet(String path, int tileSize, int cols, int rows, boolean[] collisionFlags) {
+        try {
+            BufferedImage spriteSheet = GameUtils.loadImageSafe(path);
+            ArrayList<BufferedImage> slicedTiles = GameUtils.sliceSpriteSheet(spriteSheet, tileSize, rows, cols);
+
+            for (int i = 0; i < slicedTiles.size(); i++) {
+                BufferedImage scaledTile = GameUtils.scaleImage(slicedTiles.get(i), GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
+                boolean hasCollision = (collisionFlags != null && i < collisionFlags.length) ? collisionFlags[i] : false;
+
+                tiles.add(new Tile(scaledTile, hasCollision));
+            }
+
+            System.out.println("Loaded " + slicedTiles.size() + " tiles from " + path);
+
+        } catch (IOException e) {
+            System.err.println("Error loading sprite sheet:\n" + e.getMessage());
+        }
+    }
+
+    // Load single tile, setting up image and collision properties
+    private void loadTile(String path, boolean collision) {
         Tile tile;
         try {
             tile = new Tile(
