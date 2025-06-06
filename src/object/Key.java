@@ -16,7 +16,7 @@ public class Key extends GameObject {
                     GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
             this.setImage(img);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error loading image:\n" + e.getMessage());
         }
     }
 }

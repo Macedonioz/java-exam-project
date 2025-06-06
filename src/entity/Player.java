@@ -87,7 +87,8 @@ public class Player extends RenderableEntity {
         this.setRunFrames(getPlayerSheet("/sprites/player/player_run.png"));
     }
 
-    // Return sliced and scaled player sprite sheet at given path
+    // Return sliced and scaled player sprite sheet at given path.
+    // If image loading failed returns placeholder sprites instead
     private BufferedImage[] getPlayerSheet(String path) {
         try {
             BufferedImage[] sprites = GameUtils.sliceSpriteSheet(GameUtils.loadImageSafe(path),
@@ -101,8 +102,15 @@ public class Player extends RenderableEntity {
 
         } catch (IOException e) {
             System.err.println("Error loading player sprites:" + e.getMessage());
-            e.printStackTrace();
-            return new BufferedImage[0];
+
+            // Create placeholders to fill the sprites array
+            BufferedImage[] placeholders = new BufferedImage[SPRITE_ROWS * NUM_ANIMATION_FRAMES];
+            for (int i = 0; i < placeholders.length; i++) {
+                placeholders[i] = GameUtils.getPlaceholderImage(GamePanel.TILE_SIZE, GamePanel.TILE_SIZE, Color.MAGENTA);
+            }
+
+            return placeholders;
+
         }
     }
 
@@ -204,12 +212,26 @@ public class Player extends RenderableEntity {
 
     /**
      * Updates player world position based on velocity.
+     * Clamp player position if not within world boundaries
      * @param dx player horizontal velocity
      * @param dy player vertical velocity
      */
     private void updateWorldPosition(int dx, int dy) {
-        setWorldX(getWorldX() + dx);
-        setWorldY(getWorldY() + dy);
+
+        // Ensures player cannot move out of world boundaries
+        int newX = getWorldX() + dx;
+        int newY = getWorldY() + dy;
+
+        int maxWorldWidth = GamePanel.MAX_WORLD_COL * GamePanel.TILE_SIZE;
+        int maxWorldHeight = GamePanel.MAX_WORLD_ROW * GamePanel.TILE_SIZE;
+        int playerWidth = this.getSolidArea().width;
+        int playerHeight = this.getSolidArea().height;
+
+        newX = Math.max(0, Math.min(newX, maxWorldWidth - GamePanel.TILE_SIZE));
+        newY = Math.max(0, Math.min(newY, maxWorldHeight - GamePanel.TILE_SIZE));
+
+        setWorldX(newX);
+        setWorldY(newY);
     }
 
     /**

@@ -11,7 +11,7 @@ public class GameUtils {
     /**
      * Loads image safely from given path
      * @param path file path from which to open image
-     * @return the image if loading was succesfull
+     * @return the image if loading was successfull
      * @throws FileNotFoundException if file was not found
      * @throws IOException if image format is invalid
      */
@@ -53,10 +53,11 @@ public class GameUtils {
 
     /**
      * Loads a custom font from the specified res path and applies given style and size.
+     * If font loading fails, a placeholder font is returned instead
      * @param path The relative path to the font file
      * @param fontSize The desired font size
      * @param fontStyle The style of the font (Font.PLAIN, Font.BOLD, Font.ITALIC)
-     * @return The loaded Font object, null if the font could not be loaded.
+     * @return The loaded Font object, a placeholder font if it could not be loaded.
      */
     public static Font loadFont(String path, float fontSize, int fontStyle) {
         Font font = null;
@@ -65,15 +66,27 @@ public class GameUtils {
             if (is != null) {
                 font = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(fontStyle, fontSize);
             } else {
-                System.err.println("Font file not found!");
+                throw new FileNotFoundException("File not found: " + path);
             }
+
         } catch (FontFormatException | IOException e) {
-            e.printStackTrace();
+            System.err.println("Error loading font:\n" + e.getMessage());
+
+            // Placeholder font if loading fails
+            System.err.println("Using placeholder font instead.");
+            font = new Font("SansSerif", fontStyle, 12).deriveFont(fontSize * 0.6f);
         }
 
         return font;
     }
 
+    /**
+     * Scale image at given path based on param width and height
+     * @param originalImage The original image to scale
+     * @param newWidth The new image width
+     * @param newHeight The new image width height
+     * @return The scaled image
+     */
     public static BufferedImage scaleImage(BufferedImage originalImage, int newWidth, int newHeight) {
 
         BufferedImage scaledImage = new BufferedImage(newWidth, newHeight, originalImage.getType());
@@ -82,5 +95,24 @@ public class GameUtils {
         g2.dispose();
 
         return scaledImage;
+    }
+
+    /**
+     * Returns a solid color placeholder image of the specified size.
+     * This method generates a BufferedImage filled entirely with the given color.
+     * @param width The width of the placerholder image
+     * @param height The height of the placegolder image
+     * @param color The color used to fill the image
+     * @return The placeholder image
+     */
+    public static BufferedImage getPlaceholderImage(int width, int height, Color color) {
+
+        BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = img.createGraphics();
+        g2.setColor(color);
+        g2.fillRect(0, 0, width, height);
+        g2.dispose();
+
+        return img;
     }
 }

@@ -28,59 +28,82 @@ public class CollisionChecker {
         int entityTopWorldY = entity.getWorldY() + solidArea.y;
         int entityBottomWorldY = entityTopWorldY + solidArea.height;
 
-        // Convert to tile cordinates
-        int entityLeftCol = entityLeftWorldX / GamePanel.TILE_SIZE;
-        int entityRightCol = entityRightWorldX / GamePanel.TILE_SIZE;
-        int entityTopRow = entityTopWorldY / GamePanel.TILE_SIZE;
-        int entityBottomRow = entityBottomWorldY / GamePanel.TILE_SIZE;
-
         // Get tiles data
         int[][] tileMap = gamePanel.getTileManager().getMapTileNum();
         ArrayList<Tile> tiles = gamePanel.getTileManager().getTiles();
-        int checkedTileIndex1, checkedTileIndex2;
 
+        int checkedTileIndex1, checkedTileIndex2;
+        int maxCols = tileMap.length;
+        int maxRows = tileMap[0].length;
+
+        // Tile coordinates to check for collision
+        int checkCol1 = entityLeftWorldX / GamePanel.TILE_SIZE;
+        int checkRow1 = entityTopWorldY / GamePanel.TILE_SIZE;
+        int checkCol2 = entityRightWorldX / GamePanel.TILE_SIZE;
+        int checkRow2 = entityBottomWorldY / GamePanel.TILE_SIZE;
+
+        // Calculates which tiles to check
         switch (entity.getFacing()) {
             case UP -> {
-                entityTopRow = (entityTopWorldY - entity.getSpeed()) / GamePanel.TILE_SIZE;
-                checkedTileIndex1 = tileMap[entityLeftCol][entityTopRow];
-                checkedTileIndex2 = tileMap[entityRightCol][entityTopRow];
-
-                if (tiles.get(checkedTileIndex1).isCollidable() || tiles.get(checkedTileIndex2).isCollidable()) {
-                    entity.setCollisionOn(true);
-                }
+                int newTopRow = (entityTopWorldY - entity.getSpeed()) / GamePanel.TILE_SIZE;
+                checkRow1 = checkRow2 = newTopRow;
             }
             case DOWN -> {
-                entityBottomRow = (entityBottomWorldY + entity.getSpeed()) / GamePanel.TILE_SIZE;
-                checkedTileIndex1 = tileMap[entityLeftCol][entityBottomRow];
-                checkedTileIndex2 = tileMap[entityRightCol][entityBottomRow];
-
-                if (tiles.get(checkedTileIndex1).isCollidable() || tiles.get(checkedTileIndex2).isCollidable()) {
-                    entity.setCollisionOn(true);
-                }
+                int newBottomRow = (entityBottomWorldY + entity.getSpeed()) / GamePanel.TILE_SIZE;
+                checkRow1 = checkRow2 = newBottomRow;
             }
             case LEFT -> {
-                entityLeftCol = (entityLeftWorldX - entity.getSpeed()) / GamePanel.TILE_SIZE;
-                checkedTileIndex1 = tileMap[entityLeftCol][entityTopRow];
-                checkedTileIndex2 = tileMap[entityLeftCol][entityBottomRow];
-
-                if (tiles.get(checkedTileIndex1).isCollidable() || tiles.get(checkedTileIndex2).isCollidable()) {
-                    entity.setCollisionOn(true);
-                }
+                int newLeftCol = (entityLeftWorldX - entity.getSpeed()) / GamePanel.TILE_SIZE;
+                checkCol1 = checkCol2 = newLeftCol;
             }
             case RIGHT -> {
-                entityRightCol = (entityRightWorldX + entity.getSpeed()) / GamePanel.TILE_SIZE;
-                checkedTileIndex1 = tileMap[entityRightCol][entityTopRow];
-                checkedTileIndex2 = tileMap[entityRightCol][entityBottomRow];
+                int newRightCol = (entityRightWorldX + entity.getSpeed()) / GamePanel.TILE_SIZE;
+                checkCol1 = checkCol2 = newRightCol;
+            }
+        }
 
-                if (tiles.get(checkedTileIndex1).isCollidable() || tiles.get(checkedTileIndex2).isCollidable()) {
-                    entity.setCollisionOn(true);
-                }
+        // Common collision check.
+        // Performed only if entity is within world boundaries
+        if (isInsideMap(checkCol1, checkRow1, maxCols, maxRows) && isInsideMap(checkCol2, checkRow2, maxCols, maxRows)) {
+            int tileIndex1 = tileMap[checkCol1][checkRow1];
+            int tileIndex2 = tileMap[checkCol2][checkRow2];
+
+            if (isValidTile(tileIndex1, tiles) || isValidTile(tileIndex2, tiles)) {
+                entity.setCollisionOn(true);
             }
         }
     }
 
+    private boolean isInsideMap(int col, int row, int maxCols, int maxRows) {
+        return col >= 0 && col < maxCols && row >= 0 && row < maxRows;
+    }
+
+    private boolean isValidTile(int tileIndex, ArrayList<Tile> tiles) {
+        return tileIndex >= 0 && tileIndex < tiles.size() && tiles.get(tileIndex).isCollidable();
+    }
+
+    /**
+     * Based on entity direction and speed, checks if updated position would cause an object collision.
+     * In case entity solid area intersects object solid area, set entity collision on true if object is collidable
+     * and return object index if entity is player
+     * @param entity the entity for which to check collisions
+     * @param isPlayer flag to check if entity is player
+     * @return Object index if entity is player, -1 otherwise
+     */
     public int checkObject(Entity entity, boolean isPlayer) {
         int index = -1;
+
+        int entityX = entity.getWorldX();
+        int entityY = entity.getWorldY();
+
+        int mapWidth = GamePanel.MAX_WORLD_COL * GamePanel.TILE_SIZE;
+        int mapHeight = GamePanel.MAX_WORLD_ROW * GamePanel.TILE_SIZE;
+
+        // If entity is outside the world map, skip collision detection
+        if (entityX < 0 || entityY < 0 || entityX >= mapWidth || entityY >= mapHeight) {
+            return index;
+        }
+
         ArrayList<GameObject> gameObjects = gamePanel.getGameObjects();
 
         for (int i = 0; i < gameObjects.size(); i++) {
@@ -88,8 +111,8 @@ public class CollisionChecker {
 
             // Get entity's solid area world position
             Rectangle entitySolidArea = entity.getSolidArea();
-            entitySolidArea.x += entity.getWorldX();
-            entitySolidArea.y += entity.getWorldY();
+            entitySolidArea.x += entityX;
+            entitySolidArea.y += entityY;
 
             // Get object's solid area world position
             Rectangle gameObjSolidArea =  gameObj.getSolidArea();

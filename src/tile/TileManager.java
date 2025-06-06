@@ -5,10 +5,7 @@ import game_logic.GamePanel;
 import utils.GameUtils;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.Buffer;
 import java.util.ArrayList;
 
@@ -40,8 +37,9 @@ public class TileManager {
 
     // Setup tile image and collision property
     private void setupTile(String path, boolean collision) {
+        Tile tile;
         try {
-            Tile tile = new Tile(
+            tile = new Tile(
                     GameUtils.scaleImage(
                             GameUtils.loadImageSafe(path),
                             GamePanel.TILE_SIZE,
@@ -50,12 +48,15 @@ public class TileManager {
                     collision
             );
 
-            tiles.add(tile);
-
         } catch (IOException e) {
             System.err.println("Error loading tile images:" + e.getMessage());
-            e.printStackTrace();
+            tile = new Tile(
+                    GameUtils.getPlaceholderImage(GamePanel.TILE_SIZE, GamePanel.TILE_SIZE, Color.GRAY),
+                    collision
+            );
         }
+
+        tiles.add(tile);
     }
 
     /**
@@ -65,10 +66,17 @@ public class TileManager {
     public void loadTileMap(String path) {
         try {
             InputStream is = getClass().getResourceAsStream(path);
+            if (is == null) {
+                throw new FileNotFoundException("Map file not found: " + path);
+            }
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
             for (int worldRow = 0; worldRow < GamePanel.MAX_WORLD_ROW; worldRow++) {
                 String line = br.readLine();
+                if (line == null) {
+                    throw new IOException("Unexpected end of file at row " + worldRow);
+                }
+
                 String[] tilesID = line.split(" ");
 
                 for (int worldCol = 0; worldCol < GamePanel.MAX_WORLD_COL; worldCol++) {
@@ -79,7 +87,7 @@ public class TileManager {
 
             br.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 

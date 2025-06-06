@@ -21,7 +21,7 @@ public class Sound {
     }
 
     /**
-     * Set URLs for all available sound tracks.
+     * Set URLs for all available soundtracks.
      */
     private void setSoundUrls() {
         soundUrl[GAME_THEME] = getClass().getResource("/sounds/game_theme01.wav");
@@ -36,22 +36,32 @@ public class Sound {
      */
     public void setFile(int soundID) {
         try {
+            if (soundUrl[soundID] == null) {
+                throw new IllegalArgumentException("Sound resource not found for ID: " + soundID);
+            }
+
             AudioInputStream ais = AudioSystem.getAudioInputStream(soundUrl[soundID]);
             clip = AudioSystem.getClip();
             clip.open(ais);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to load sound:\n" + e.getMessage());
         }
     }
 
     public void play() {
-        clip.start();
+        if (clip != null) {
+            clip.start();
+        }
     }
     public void loop() {
-        clip.loop(Clip.LOOP_CONTINUOUSLY);
+        if (clip != null) {
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+        }
     }
     public void stop() {
-        clip.stop();
+        if (clip != null) {
+            clip.stop();
+        }
     }
 }
