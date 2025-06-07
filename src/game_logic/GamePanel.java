@@ -14,6 +14,8 @@ import java.util.ArrayList;
  * @author LC
  */
 public class GamePanel extends JPanel implements Runnable{
+    /* --------------- [CONSTANTS] --------------- */
+
     // SCREEN SETTINGS
     public static final int ORIGINAL_TILE_SIZE = 16;                        // 16x16 default tile size
     public static final int SCALE = 3;
@@ -33,23 +35,37 @@ public class GamePanel extends JPanel implements Runnable{
     // FPS
     public static final int FPS = 60;
 
+    // DEBUG
+    private static final int DEBUG_TEXT_INITIAL_X = 20;
+    private static final int DEBUG_TEXT_INITIAL_Y = 450;
+    private static final int DEBUG_TEXT_SPACING = 20;
+    private final Font debugFont = new Font("Monospaced", Font.BOLD, 25);
+    private final Color debugColor = Color.WHITE;
+
+    /* ------------------------------------------- */
+
     // GAME ENGINE COMPONENTS
     private Thread gameThread;
-    private final KeyHandler gameKeyHandler = new KeyHandler();
-
-    // GAME ELEMENTS
-    private final Player player = new Player(this);
+    private final KeyHandler gameKeyHandler = new KeyHandler(this);
     private final TileManager tileManager = new TileManager(this);
     private final CollisionChecker collisionChecker = new CollisionChecker(this);
     private final AssetSetter assetSetter = new AssetSetter(this);
+
+    // GAME ELEMENTS
+    private final Player player = new Player(this);
     private final ArrayList<GameObject> gameObjects = new ArrayList<>();
     private final Sound music = new Sound();
     private final Sound soundEffect = new Sound();
     private final UI ui = new UI(this);
 
-    // DEBUG
-    private final Font debugFont = new Font("Monospaced", Font.BOLD, 25);
-    private final Color debugColor = Color.WHITE;
+    // GAME STATE
+    public enum GameState {
+        PLAYING,
+        PAUSED,
+        TITLE,
+        OPTIONS
+    }
+    private GameState gameState;
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -61,8 +77,8 @@ public class GamePanel extends JPanel implements Runnable{
     }
 
     public void setupGame() {
+        gameState = GameState.TITLE;
         assetSetter.setGameObjects();
-        playMusic(Sound.GAME_THEME);
     }
 
     /**
@@ -119,7 +135,14 @@ public class GamePanel extends JPanel implements Runnable{
     public void update() {
         // Prevent key events to get "stuck" if the window loses focus while a key is pressed
         if (this.isFocusOwner()) {
-            player.update();
+            switch (gameState) {
+                case PLAYING -> {
+                    player.update();
+                }
+                case PAUSED -> {
+                    // No updates
+                }
+            }
         } else {
             gameKeyHandler.resetAllKeys();
         }
@@ -129,20 +152,36 @@ public class GamePanel extends JPanel implements Runnable{
      * Handles custom rendering of game elements.
      * This method is automatically called by Swing when the component needs to be redrawn.
      * Disposal of Graphics object and release of system resources that it is using is handled by Swing
-     * @param g The Graphics context used for rendering. This is provided by Swing's painting system.
-     *          It represents the drawing surface of the component.
+     * @param g The Graphics2D context to draw on
      */
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);                    // to ensure proper rendering hierarchy and clear background
+
         Graphics2D g2 = (Graphics2D) g;            // extends Graphics providing more advanced features
 
+        switch (gameState) {
+            case TITLE -> drawTitleScreen(g2);
+            case PLAYING, PAUSED -> drawGame(g2);
+        }
+    }
+
+    /*
+     * Draws title screen UI elements
+     * @param g2 The Graphics2D context to draw on
+     */
+    private void drawTitleScreen(Graphics2D g2) {
+        ui.draw(g2);
+    }
+
+    /*
+     * Draws all game elements such as player sprites, tiles, object, UI, ...
+     * @param g2 The Graphics2D context to draw on
+     */
+    private void drawGame(Graphics2D g2) {
         // DEBUG
         boolean debug = gameKeyHandler.isDebugModeOn();
-        long drawStart = 0;
-        if (debug) {
-            drawStart = System.nanoTime();
-        }
+        long drawStart = debug ? System.nanoTime() : 0;
 
         // TILES
         tileManager.draw(g2);
@@ -159,12 +198,18 @@ public class GamePanel extends JPanel implements Runnable{
         ui.draw(g2);
 
         // DEBUG
-        if (debug) {
+        if (debug && gameState == GameState.PLAYING) {
             drawDebugInfo(drawStart, g2);
             player.drawDebug(g2);
         }
     }
 
+    /*
+     * Draws debug info on the screen, such as player hitbox, coordinates
+     * and draw time for each call to paintComponent method (60 times per second)
+     * @param drawStart Start time of paint component method
+     * @param g2 The Graphics2D context to draw on
+     */
     private void drawDebugInfo(long drawStart, Graphics2D g2) {
         // Save original font properties
         Font originalFont = g2.getFont();
@@ -176,30 +221,73 @@ public class GamePanel extends JPanel implements Runnable{
 
         long drawEnd = System.nanoTime();
         long timePassed = (drawEnd - drawStart) / 1_000;            // draw time in micro seconds (µs)
-        g2.drawString("Draw Time: " + timePassed + " µs", 20, 550);
-        System.out.println("Draw Time: " + timePassed + " µs");
+
+        int x = DEBUG_TEXT_INITIAL_X;
+        int y = DEBUG_TEXT_INITIAL_Y;
+        int spacing = DEBUG_TEXT_SPACING;
+
+        g2.drawString("WorldX: " + player.getWorldX(), x, y); y += spacing;
+        g2.drawString("WorldY: " + player.getWorldY(), x, y); y += spacing;
+        g2.drawString("Col: " + ((player.getWorldX() + player.getSolidArea().x) / TILE_SIZE), x, y); y += spacing;
+        g2.drawString("Row: " + ((player.getWorldY() + player.getSolidArea().y) / TILE_SIZE), x, y); y += spacing * 2;
+        g2.drawString("Draw Time: " + timePassed + " µs", x, y);
 
         // Restore font properties
         g2.setFont(originalFont);
         g2.setColor(originalColor);
     }
 
+    /**
+     * Plays music with given soundID
+     * @param soundID ID of music to play
+     */
     public void playMusic(int soundID) {
-        music.setFile(soundID);
+        music.loadAudio(soundID);
         music.play();
         music.loop();
     }
 
+    /**
+     * Stops currently playing music
+     */
     public void stopMusic() {
         music.stop();
     }
 
+    /**
+     * Resume currently stopped music
+     */
+    public void resumeMusic() {
+        music.play();
+        music.loop();
+    }
+
+    /**
+     * Plays sound effect with given soundID
+     * @param soundID ID of sound to play
+     */
     public void playSoundEffect(int soundID) {
-        soundEffect.setFile(soundID);
+        soundEffect.loadAudio(soundID);
         soundEffect.play();
     }
 
-    // Getter methods
+    /**
+     * Sets game state to the given one.
+     * Stops music if gameState = PAUSED, resume it if gameState = PLAYING
+     * @param gameState Game state to set
+     */
+    public void setGameState(GameState gameState) {
+        if (gameState == GameState.PAUSED) {
+            stopMusic();
+        } else if (gameState == GameState.PLAYING) {
+            resumeMusic();
+        }
+
+        this.gameState = gameState;
+    }
+
+    /* --------------- [GETTER METHODS] --------------- */
+
     public Player getPlayer() { return player; }
     public TileManager getTileManager() { return tileManager; }
     public CollisionChecker getCollisionChecker() { return collisionChecker; }
@@ -207,4 +295,7 @@ public class GamePanel extends JPanel implements Runnable{
     public AssetSetter getAssetSetter() { return assetSetter; }
     public ArrayList<GameObject> getGameObjects() { return gameObjects; }
     public UI getUi() { return ui; }
+    public GameState getGameState() { return gameState; }
+
+    /* ------------------------------------------------ */
 }

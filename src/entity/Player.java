@@ -14,8 +14,6 @@ import java.util.ArrayList;
 
 public class Player extends RenderableEntity {
 
-    private final GamePanel gamePanel;
-
     private static final int DEFAULT_SPEED = 4;
     private final int screenX;
     private final int screenY;
@@ -30,18 +28,18 @@ public class Player extends RenderableEntity {
     private int currentAnimationFrame = 0;
 
     // COLLISION
-    private static final int COLLISION_BOX_OFFSET_X = 8;
+    private static final int COLLISION_BOX_OFFSET_X = 9;
     private static final int COLLISION_BOX_OFFSET_Y = 16;
-    private static final int COLLISION_BOX_WIDTH = 32;
+    private static final int COLLISION_BOX_WIDTH = 30;
     private static final int COLLISION_BOX_HEIGHT = 32;
 
     // GAME PARAMS
     private int numKeys = 0;
-    private static final int REQUIRED_KEYS = 4;
+    private static final int REQUIRED_KEYS = 0;
     private static final float SPEED_BOOST_MULTIPLIER = 1.5f;
 
     public Player(GamePanel gamePanel) {
-        this.gamePanel = gamePanel;
+        super(gamePanel);
 
         screenX = (GamePanel.SCREEN_WIDTH / 2) - (GamePanel.TILE_SIZE / 2);
         screenY = (GamePanel.SCREEN_HEIGHT / 2) - (GamePanel.TILE_SIZE / 2);

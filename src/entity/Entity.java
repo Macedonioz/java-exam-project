@@ -1,9 +1,13 @@
 package entity;
 
+import game_logic.GamePanel;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public abstract class Entity {
+    protected GamePanel gamePanel;
+
     private int worldX, worldY;
     private int speed;
     private Entity.Direction facing;
@@ -15,6 +19,10 @@ public abstract class Entity {
 
     public enum Direction {
         DOWN, LEFT, RIGHT, UP
+    }
+
+    Entity(GamePanel gamePanel) {
+        this.gamePanel = gamePanel;
     }
 
     // Getter methods

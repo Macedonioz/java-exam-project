@@ -56,13 +56,22 @@ public class TileManager {
             SOLID, SOLID
     };
 
+    private static final boolean[] BRIDGE_FLAGS = {
+            NON_SOLID, NON_SOLID, NON_SOLID,
+            NON_SOLID, NON_SOLID, NON_SOLID,
+            SOLID, SOLID, SOLID,
+            SOLID, NON_SOLID, SOLID,
+            SOLID, NON_SOLID, SOLID,
+            SOLID, NON_SOLID, SOLID
+    };
+
     public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
         this.tiles = new ArrayList<>();
         this.mapTileNum = new int[GamePanel.MAX_WORLD_COL][GamePanel.MAX_WORLD_ROW];
 
         loadTiles();
-        loadTileMap("/maps/world01.txt");
+        loadTileMap("res/maps/world01.txt");
     }
 
     /**
@@ -82,8 +91,10 @@ public class TileManager {
         loadTilesFromSpriteSheet("/tiles/water_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, WATER_FLAGS);
         // [34 -> 48 (15)]
         loadTilesFromSpriteSheet("/tiles/path_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, PATH_FLAGS);
-        // [49 -> 60 (12)]
+        // [49 -> 61 (12)]
         loadTilesFromSpriteSheet("/tiles/beach_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, BEACH_FLAGS);
+        // [62 -> 79 (18)]
+        loadTilesFromSpriteSheet("/tiles/bridge_tiles01.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, 6, BRIDGE_FLAGS);
     }
 
     // Loads multiple tiles from sprite sheet at given path.
@@ -136,11 +147,7 @@ public class TileManager {
      */
     public void loadTileMap(String path) {
         try {
-            InputStream is = getClass().getResourceAsStream(path);
-            if (is == null) {
-                throw new FileNotFoundException("Map file not found: " + path);
-            }
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            BufferedReader br = new BufferedReader(new FileReader(path));
 
             for (int worldRow = 0; worldRow < GamePanel.MAX_WORLD_ROW; worldRow++) {
                 String line = br.readLine();
@@ -148,13 +155,23 @@ public class TileManager {
                     throw new IOException("Unexpected end of file at row " + worldRow);
                 }
 
-                String[] tilesID = line.split(" ");
+                String[] rowTilesID = line.split(" ");
 
                 for (int worldCol = 0; worldCol < GamePanel.MAX_WORLD_COL; worldCol++) {
-                    int tileID = Integer.parseInt(tilesID[worldCol]);
-                    mapTileNum[worldCol][worldRow] = tileID;
+                    int tileID = Integer.parseInt(rowTilesID[worldCol]);
+
+                    // If tile is invalid, add placeholder tile [ID = 0] instead
+                    if (tileID < 0 || tileID >= tiles.size()) {
+                        System.err.println("Invalid tile index at (" + worldCol + "," + worldRow + "): " + tileID);
+                        System.err.println("Added placeholder tile instead...");
+                        mapTileNum[worldCol][worldRow] = 0;
+                    } else {
+                        mapTileNum[worldCol][worldRow] = tileID;
+                    }
                 }
             }
+
+            System.out.println("Loaded map from " + path);
 
             br.close();
         } catch (Exception e) {
@@ -193,6 +210,11 @@ public class TileManager {
         for (int worldRow = 0; worldRow < GamePanel.MAX_WORLD_ROW; worldRow++) {
             for (int worldCol = 0; worldCol < GamePanel.MAX_WORLD_COL; worldCol++) {
                 int tileNum = mapTileNum[worldCol][worldRow];
+
+                // Skip invalid tile indexes
+                if (tileNum < 0 || tileNum >= tiles.size()) {
+                    continue;
+                }
 
                 int worldX = worldCol * GamePanel.TILE_SIZE;
                 int worldY = worldRow * GamePanel.TILE_SIZE;

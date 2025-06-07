@@ -1,11 +1,17 @@
 package entity;
 
+import game_logic.GamePanel;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public abstract class RenderableEntity extends Entity {
 
     private BufferedImage[] idleFrames, runFrames;
+
+    RenderableEntity(GamePanel gamePanel) {
+        super(gamePanel);
+    }
 
     // Getter methods
     public BufferedImage[] getRunFrames() { return runFrames; }

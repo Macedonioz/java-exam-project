@@ -63,7 +63,12 @@ public class GameUtils {
         return sprites;
     }
 
-    // Helper function that checks if given image is fully transparent
+
+    /*
+     * Checks if given image is fully transparent
+     * @param image The image to check
+     * @return true if every pixel is transparent, false if there is any visible pixel
+     */
     private static boolean isFullyTransparent(BufferedImage image) {
         for (int y = 0; y < image.getHeight(); y++) {
             for (int x = 0; x < image.getWidth(); x++) {
@@ -71,11 +76,11 @@ public class GameUtils {
                 int pixel = image.getRGB(x, y);                                  // color values of single pixel
                 int alpha = new Color(pixel, true).getAlpha();          // pixel transparency (visible if alpha value != 0)
                 if (alpha != 0) {
-                    return false;       // if there is any visible pixel
+                    return false;
                 }
             }
         }
-        return true;        // if every pixel is transparent
+        return true;
     }
 
     /**
