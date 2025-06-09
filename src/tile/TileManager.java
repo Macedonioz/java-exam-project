@@ -7,7 +7,6 @@ import utils.GameUtils;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.nio.Buffer;
 import java.util.ArrayList;
 
 public class TileManager {
@@ -88,22 +87,20 @@ public class TileManager {
      */
     public void loadTiles() {
 
-        // [0 -> 3]
+        // [0 -> 1]
         loadTile("/tiles/grass_01.png", false);
-        loadTile("/tiles/sand_01.png", false);
-        loadTile("/tiles/water_01.png", true);
         loadTile("/tiles/tree_01.png", true);
 
-        // [4 -> 18 (15)]
-        loadTilesFromSpriteSheet("/tiles/grass_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, GRASS_FLAGS);
-        // [19 -> 33 (15)]
-        loadTilesFromSpriteSheet("/tiles/water_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, WATER_FLAGS);
-        // [34 -> 48 (15)]
-        loadTilesFromSpriteSheet("/tiles/path_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, PATH_FLAGS);
-        // [49 -> 61 (12)]
-        loadTilesFromSpriteSheet("/tiles/beach_tiles.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, BEACH_FLAGS);
-        // [62 -> 79 (18)]
-        loadTilesFromSpriteSheet("/tiles/bridge_tiles01.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, 6, BRIDGE_FLAGS);
+        // [2 -> 16 (15)]
+        loadTilesFromSpriteSheet("/tiles/grass_tiles_01.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, GRASS_FLAGS);
+        // [17 -> 31 (15)]
+        loadTilesFromSpriteSheet("/tiles/water_tiles_01.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, WATER_FLAGS);
+        // [32 -> 46 (15)]
+        loadTilesFromSpriteSheet("/tiles/path_tiles_01.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, PATH_FLAGS);
+        // [47 -> 58 (12)]
+        loadTilesFromSpriteSheet("/tiles/beach_tiles_01.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, DEFAULT_SHEET_ROWS, BEACH_FLAGS);
+        // [59 -> 76 (18)]
+        loadTilesFromSpriteSheet("/tiles/bridge_tiles_01.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, 6, BRIDGE_FLAGS);
     }
 
     // Load single tile, setting up image and collision properties
@@ -173,7 +170,7 @@ public class TileManager {
                     throw new IOException("Unexpected end of file at row " + worldRow);
                 }
 
-                String[] rowTilesID = line.split(" ");
+                String[] rowTilesID = line.trim().split("\\s+");
 
                 for (int worldCol = 0; worldCol < GamePanel.MAX_WORLD_COL; worldCol++) {
                     int tileID = Integer.parseInt(rowTilesID[worldCol]);

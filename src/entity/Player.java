@@ -18,7 +18,7 @@ public class Player extends RenderableEntity {
     /* --------------- [CONSTANTS] --------------- */
 
     // COORDINATES
-    private static final int DEAFAULT_X = GamePanel.WORLD_WIDTH / 2;
+    private static final int DEFAULT_X = GamePanel.WORLD_WIDTH / 2;
     private static final int DEFAULT_Y = GamePanel.WORLD_HEIGHT / 2;
 
     // SPRITE SHEET
@@ -26,18 +26,16 @@ public class Player extends RenderableEntity {
     private static final int SPRITE_ROWS = 4;
 
     // ANIMATION
-    private static final int ANIMATION_FRAME_DELAY = 10;                // animation speed
+    private static final int DEFAULT_ANIMATION_SPEED = 10;
 
     // COLLISION
-    private static final int COLLISION_BOX_OFFSET_X = 9;
-    private static final int COLLISION_BOX_OFFSET_Y = 16;
-    private static final int COLLISION_BOX_WIDTH = 30;
-    private static final int COLLISION_BOX_HEIGHT = 32;
+    private static final int COLLISION_BOX_WIDTH = 25;
+    private static final int COLLISION_BOX_HEIGHT = 28;
 
     // GAME PARAMS
-    private static final int DEFAULT_SPEED = 4;
-    public static final int REQUIRED_KEYS = 4;
-    public static final float SPEED_BOOST_MULTIPLIER = 1.5f;
+    private static final int DEFAULT_SPEED = 5;
+    public static final int REQUIRED_KEYS = 0;
+    public static final float SPEED_BOOST_MULTIPLIER = 1.2f;
 
     /* ------------------------------------------- */
 
@@ -68,8 +66,10 @@ public class Player extends RenderableEntity {
      * Set player's collision box (~solidArea) default values
      */
     private void setCollisionBox() {
-        this.setSolidAreaDefaultX(COLLISION_BOX_OFFSET_X);
-        this.setSolidAreaDefaultY(COLLISION_BOX_OFFSET_Y);
+        int collisionBoxOffsetX = (GamePanel.TILE_SIZE - COLLISION_BOX_WIDTH) / 2;
+        int collisionBoxOffsetY = (GamePanel.TILE_SIZE - COLLISION_BOX_HEIGHT) / 2;
+        this.setSolidAreaDefaultX(collisionBoxOffsetX);
+        this.setSolidAreaDefaultY(collisionBoxOffsetY);
 
         Rectangle collisionBox = new Rectangle(
                 getSolidAreaDefaultX(),
@@ -84,7 +84,7 @@ public class Player extends RenderableEntity {
      * Set player default position (X, Y world coordinates) and speed as game starts
      */
     private void setDefaultValues() {
-        setWorldX(DEAFAULT_X);
+        setWorldX(DEFAULT_X);
         setWorldY(DEFAULT_Y);
         setSpeed(DEFAULT_SPEED);
         setFacing(Direction.DOWN);
@@ -295,7 +295,8 @@ public class Player extends RenderableEntity {
      * Updates current animation frame according to animation speed
      */
     private void updateAnimation() {
-        if (++this.frameDelayCounter > ANIMATION_FRAME_DELAY) {
+        int animationSpeed = (int) (DEFAULT_ANIMATION_SPEED * (DEFAULT_ANIMATION_SPEED / this.getSpeed()));
+        if (++this.frameDelayCounter > animationSpeed) {
             this.currentAnimationFrame = (this.currentAnimationFrame + 1) % NUM_ANIMATION_FRAMES;
             this.frameDelayCounter = 0;
         }

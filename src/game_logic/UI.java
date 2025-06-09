@@ -14,12 +14,12 @@ public class UI {
     // FONT SIZES
     private final static float TITLE_SCREEN_FONT_SIZE = 70.0f;
     private final static float MENU_COMMANDS_FONT_SIZE = 35.0f;
-    private final static float COMMAND_SCREEN_FONT_SIZE = 50.0f;
+    private final static float COMMAND_SCREEN_FONT_SIZE = 54.0f;
     private final static float GAME_FONT_SIZE = 60.0f;
     private final static float PAUSE_FONT_SIZE = 50.0f;
     private final static float OPTIONS_SCREEN_FONT_SIZE = 40.0f;
     private final static float TIMED_MESSAGE_FONT_SIZE = 45.0f;
-    private final static float ENDING_FONT_SIZE = 75.0f;
+    private final static float ENDING_FONT_SIZE = 65.0f;
     private final static float ENDING_SUB_FONT_SIZE = 40.0f;
 
     // SPACING
@@ -74,7 +74,7 @@ public class UI {
     private final static BasicStroke MENU_FRAME_THICKNESS = new BasicStroke(2);
     private final static int MENU_FRAME_OFFSET_X = GamePanel.TILE_SIZE / 2;
     private final static int MENU_FRAME_OFFSET_Y = GamePanel.TILE_SIZE / 2;
-    private final static String GAME_TITLE = "Java Adventure";                                                  // Game title
+    private final static String GAME_TITLE = "Java Treasure";                                                   // Game title
     private final static int TITLE_Y = GamePanel.TILE_SIZE * 3;
     private final static int TITLE_SHADOW_OFFSET = 4;
     private final static int GAME_IMAGE_X = GamePanel.SCREEN_WIDTH / 2 - (GamePanel.TILE_SIZE * 2) / 2;         // Game image
@@ -84,8 +84,9 @@ public class UI {
             "QUIT"
     };
 
-    // COMMAND SCREEN
-    private static final String[] COMMAND_SCREEN_LINES = {
+    // CONTROLS SCREEN
+    private static final String[] CONTROLS_SCREEN_LINES = {
+            "Collect all the keys to find the treasure",
             "<How to play>",
             "Move: [WASD / ArrowKeys]",
             "Pause: [P]",
@@ -93,7 +94,7 @@ public class UI {
             "Debug Mode: [']",
             "(Press enter to start game)"
     };
-    private final static int INITIAL_COMMANDS_Y = GamePanel.TILE_SIZE * 2;
+    private final static int INITIAL_CONTROLS_Y = GamePanel.TILE_SIZE * 2;
 
     // PLAYING STATE
     private final static int KEY_STRING_X = (int) (GamePanel.TILE_SIZE * 1.8);                      // Key object
@@ -143,11 +144,12 @@ public class UI {
     // ENDING STATE
     private static final String[] ENDING_SCREEN_LINES = {
             "Congratulations!",
-            "You found the treasure!",
+            "You found the Java treasure!",
+            "It was a good grade on the OOP exam ;)",
             "Your time is: ",
             "<Press Enter to return to the title screen>"
     };
-    private final static int INITIAL_ENDING_MESSAGE_Y = GamePanel.SCREEN_HEIGHT / 2 - (int) (GamePanel.TILE_SIZE * 3);
+    private final static int INITIAL_ENDING_MESSAGE_Y = GamePanel.SCREEN_HEIGHT / 2 - (int) (GamePanel.TILE_SIZE * 3.5);
 
     /* ---------------------------------------------- */
 
@@ -250,7 +252,7 @@ public class UI {
                 drawMenuCommands(g2);
             }
             case TitleScreenState.COMMANDS_SCREEN -> {
-                drawCommandScreen(g2);
+                drawControlsScreen(g2);
             }
         }
     }
@@ -345,31 +347,38 @@ public class UI {
         gamePanel.getGameKeyHandler().resetEnterKeyState();
     }
 
-    // TODO here
-
     /*
      * Draws command instructions
      * @param g2 The Graphics2D context to draw on
      */
-    private void drawCommandScreen(Graphics2D g2) {
-        g2.setColor(Color.WHITE);
+    private void drawControlsScreen(Graphics2D g2) {
+        g2.setColor(Color.YELLOW);
         g2.setFont(primaryFont.deriveFont(COMMAND_SCREEN_FONT_SIZE));
 
-        int y = INITIAL_COMMANDS_Y;
+        int x;
+        int y = INITIAL_CONTROLS_Y;
         int spacing = TEXT_SPACING;
 
-        for (int i = 0; i < COMMAND_SCREEN_LINES.length; i++) {
-            String line = COMMAND_SCREEN_LINES[i];
-            int x = getXForCenteredText(line, g2);
-            g2.drawString(line, x, y);
+        // INITIAL LINE
+        String initialText = CONTROLS_SCREEN_LINES[0];
+        x = getXForCenteredText(initialText, g2);
+        g2.drawString(initialText, x, y); y += spacing * 2;
 
-            // Add extra spacing before the last line
-            if (i == COMMAND_SCREEN_LINES.length - 2) {
-                y += spacing * 5;                   // extra spacing
-            } else {
-                y += spacing;
-            }
+        g2.setColor(Color.WHITE);
+
+        // CONTROLS LINES
+        for (int i = 1; i < CONTROLS_SCREEN_LINES.length - 1; i++) {
+            String line = CONTROLS_SCREEN_LINES[i];
+            x = getXForCenteredText(line, g2);
+            g2.drawString(line, x, y); y += spacing;
         }
+
+        y += (int) (spacing * 1.6);       // extra spacing before last line
+
+        // ENDING LINE
+        String finalText = CONTROLS_SCREEN_LINES[CONTROLS_SCREEN_LINES.length - 1];
+        x = getXForCenteredText(finalText, g2);
+        g2.drawString(finalText, x, y);
 
         if (gamePanel.getGameKeyHandler().isEnterPressed()) {
             gamePanel.setGameState(GamePanel.GameState.PLAYING);
@@ -605,8 +614,7 @@ public class UI {
             g2.drawString(CURSOR, x - (CURSOR_SPACING / 2), y);
             if (gamePanel.getGameKeyHandler().isEnterPressed()) {
                 subState = 0;
-                gamePanel.setGameState(GamePanel.GameState.TITLE);
-                gamePanel.stopMusic();
+                gamePanel.resetGame();
             }
         }
         y += spacing;
@@ -635,7 +643,7 @@ public class UI {
         int spacing = TEXT_SPACING;
 
         g2.setFont(secondaryFont);
-        g2.setColor(Color.YELLOW);
+        g2.setColor(Color.CYAN);
 
         // Ending message 1
         text = ENDING_SCREEN_LINES[0];
@@ -649,17 +657,22 @@ public class UI {
         // Ending message 2
         text = ENDING_SCREEN_LINES[1];
         x = getXForCenteredText(text, g2);
+        g2.drawString(text, x, y); y+= (int) (spacing * 0.8);
+
+        // Ending message 1
+        text = ENDING_SCREEN_LINES[2];
+        x = getXForCenteredText(text, g2);
         g2.drawString(text, x, y); y+= (int) (spacing * 4.5);
 
         // Final time message
-        text = ENDING_SCREEN_LINES[2] + decimalFormat.format(playTime);
+        text = ENDING_SCREEN_LINES[3] + decimalFormat.format(playTime);
         x = getXForCenteredText(text, g2);
         g2.drawString(text, x, y); y+= spacing;
 
         g2.setFont(primaryFont.deriveFont(ENDING_SUB_FONT_SIZE));
 
         // Back to title screen message
-        text = ENDING_SCREEN_LINES[3];
+        text = ENDING_SCREEN_LINES[4];
         x = getXForCenteredText(text, g2);
         g2.drawString(text, x, y);
 

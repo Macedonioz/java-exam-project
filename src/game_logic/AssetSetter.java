@@ -29,12 +29,23 @@ public class AssetSetter {
      * Sets all game objects position at the start of the game
      */
     public void setGameObjects() {
-        addGameObject(new Key(gamePanel), 24, 36);
-        addGameObject(new Key(gamePanel), 30, 14);
-        addGameObject(new Key(gamePanel), 41, 26);
-        addGameObject(new Key(gamePanel), 15, 22);
-        addGameObject(new Chest(gamePanel), 24, 24);
-        addGameObject(new Boots(gamePanel), 23, 43);
+
+        addGameObject(new Key(gamePanel), 58, 32);
+        addGameObject(new Key(gamePanel), 68, 60);
+        addGameObject(new Key(gamePanel), 54, 52);
+        addGameObject(new Key(gamePanel), 18, 34);
+        addGameObject(new Key(gamePanel), 9, 44);
+        addGameObject(new Key(gamePanel), 18, 34);
+        addGameObject(new Key(gamePanel), 10, 69);
+        addGameObject(new Key(gamePanel), 15, 10);
+        addGameObject(new Key(gamePanel), 64, 13);
+        addGameObject(new Key(gamePanel), 40, 31);
+
+        addGameObject(new Boots(gamePanel), 64, 49);
+        addGameObject(new Boots(gamePanel), 40, 62);
+        addGameObject(new Boots(gamePanel), 39, 31);
+
+        addGameObject(new Chest(gamePanel), 41, 15);
     }
 
 }

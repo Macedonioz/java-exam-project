@@ -27,8 +27,8 @@ public class GamePanel extends JPanel implements Runnable{
     public static final int SCREEN_HEIGHT = MAX_SCREEN_ROW * TILE_SIZE;
 
     // WORLD SETTINGS
-    public static final int MAX_WORLD_COL = 50;
-    public static final int MAX_WORLD_ROW = 50;
+    public static final int MAX_WORLD_COL = 80;
+    public static final int MAX_WORLD_ROW = 80;
     public static final int WORLD_WIDTH = MAX_WORLD_COL * TILE_SIZE;
     public static final int WORLD_HEIGHT = MAX_WORLD_ROW * TILE_SIZE;
 
@@ -290,6 +290,9 @@ public class GamePanel extends JPanel implements Runnable{
 
         // Reset UI elements
         ui.reset();
+
+        // Reset buffered keys
+        gameKeyHandler.resetAllKeys();;
 
         setupGame();
         stopMusic();
