@@ -3,6 +3,7 @@ package entity;
 import game_logic.GamePanel;
 import game_logic.KeyHandler;
 import game_logic.Sound;
+import object.Chest;
 import object.GameObject;
 import tile.Tile;
 import utils.GameUtils;
@@ -14,18 +15,18 @@ import java.util.ArrayList;
 
 public class Player extends RenderableEntity {
 
-    private static final int DEFAULT_SPEED = 4;
-    private final int screenX;
-    private final int screenY;
+    /* --------------- [CONSTANTS] --------------- */
 
-    // SPRITE
-    private static final int NUM_ANIMATION_FRAMES = 4;          // number of animation frames for every sprite row
-    private static final int SPRITE_ROWS = 4;                   // a row in the sprite sheet for every direction
+    // COORDINATES
+    private static final int DEAFAULT_X = GamePanel.WORLD_WIDTH / 2;
+    private static final int DEFAULT_Y = GamePanel.WORLD_HEIGHT / 2;
+
+    // SPRITE SHEET
+    private static final int NUM_ANIMATION_FRAMES = 4;
+    private static final int SPRITE_ROWS = 4;
 
     // ANIMATION
     private static final int ANIMATION_FRAME_DELAY = 10;                // animation speed
-    private int frameDelayCounter = 0;                          // to update player animation frames
-    private int currentAnimationFrame = 0;
 
     // COLLISION
     private static final int COLLISION_BOX_OFFSET_X = 9;
@@ -34,9 +35,23 @@ public class Player extends RenderableEntity {
     private static final int COLLISION_BOX_HEIGHT = 32;
 
     // GAME PARAMS
+    private static final int DEFAULT_SPEED = 4;
+    public static final int REQUIRED_KEYS = 4;
+    public static final float SPEED_BOOST_MULTIPLIER = 1.5f;
+
+    /* ------------------------------------------- */
+
+    // ANIMATION
+    private int frameDelayCounter = 0;                          // to update player animation frames
+    private int currentAnimationFrame = 0;
+
+    // COORDINATES
+    private final int screenX;
+    private final int screenY;
+
+    // GAME PARAMS
     private int numKeys = 0;
-    private static final int REQUIRED_KEYS = 0;
-    private static final float SPEED_BOOST_MULTIPLIER = 1.5f;
+
 
     public Player(GamePanel gamePanel) {
         super(gamePanel);
@@ -69,8 +84,8 @@ public class Player extends RenderableEntity {
      * Set player default position (X, Y world coordinates) and speed as game starts
      */
     private void setDefaultValues() {
-        setWorldX(GamePanel.WORLD_WIDTH / 2);
-        setWorldY(GamePanel.WORLD_HEIGHT / 2);
+        setWorldX(DEAFAULT_X);
+        setWorldY(DEFAULT_Y);
         setSpeed(DEFAULT_SPEED);
         setFacing(Direction.DOWN);
     }
@@ -85,8 +100,13 @@ public class Player extends RenderableEntity {
         this.setRunFrames(loadPlayerSheet("/sprites/player/player_run.png"));
     }
 
-    // Return sliced and scaled player sprite sheet at given path.
-    // If image loading failed returns placeholder sprites instead
+    /*
+     * Loads player sprite sheet from the given path, slices it into individual frames,
+     * scales each frame to the game's tile size, and returns the resulting array.
+     * @param path The path to the sprite sheet image file
+     * @return An array containing the scaled frames if loading was successfully,
+     *         a placeholder sprites otherwise.
+     */
     private BufferedImage[] loadPlayerSheet(String path) {
         try {
             BufferedImage sheet = GameUtils.loadImageSafe(path);
@@ -124,7 +144,7 @@ public class Player extends RenderableEntity {
         updateAnimation();
     }
 
-    /**
+    /*
      * Handle player movement based on keys input and collisions
      */
     private void handleMovement() {
@@ -149,7 +169,7 @@ public class Player extends RenderableEntity {
         setMoving(vx != 0 || vy != 0);
     }
 
-    /**
+    /*
      * Calculates player's movement direction based on keys input.
      * @return player movement direction {dx, dy}
      */
@@ -165,7 +185,7 @@ public class Player extends RenderableEntity {
         return new int[]{dx, dy};
     }
 
-    /**
+    /*
      * Updates player facing direction.
      * For diagonal movement prioritizes horizontal directions.
      * @param dx horizontal movement direction
@@ -179,7 +199,7 @@ public class Player extends RenderableEntity {
         }
     }
 
-    /**
+    /*
      * Calculates the player final velocity based on speed and direction,
      * unless player collision is enabled.
      * @param dx horizontal movement direction
@@ -194,7 +214,7 @@ public class Player extends RenderableEntity {
         return normalizeDiagonalMovement(dx, dy, speed);
     }
 
-    /**
+    /*
      * Normalizes diagonal movement and applies speed.
      * @param dx horizontal movement direction
      * @param dy vertical movement direction
@@ -211,7 +231,7 @@ public class Player extends RenderableEntity {
         return new int[]{dx * speed, dy * speed};
     }
 
-    /**
+    /*
      * Updates player world position based on velocity.
      * Clamp player position if not within world boundaries
      * @param dx player horizontal velocity
@@ -235,7 +255,7 @@ public class Player extends RenderableEntity {
         setWorldY(newY);
     }
 
-    /**
+    /*
      * Handles player collisions
      */
     private void handleCollisions() {
@@ -243,7 +263,7 @@ public class Player extends RenderableEntity {
         handleObjectCollisions();
     }
 
-    /**
+    /*
      * Enables player collision if checked tiles are collidable
      */
     private void handleTileCollisions() {
@@ -251,7 +271,7 @@ public class Player extends RenderableEntity {
         gamePanel.getCollisionChecker().checkTile(this);
     }
 
-    /**
+    /*
      * Handles player interaction with game objects on collision.
      * Enables player collision if checked object is collidable
      */
@@ -260,39 +280,18 @@ public class Player extends RenderableEntity {
 
         if (gameObjIndex == -1) return;
 
-        ArrayList<GameObject> gameObjects = gamePanel.getGameObjects();
-        String gameObjName = gameObjects.get(gameObjIndex).getName();
-
-        switch (gameObjName) {
-            case "Key" -> {
-                gamePanel.playSoundEffect(Sound.PICK_UP_KEY);
-
-                gameObjects.remove(gameObjIndex);
-                this.numKeys++;
-                gamePanel.getUi().showMessage("You got a key!");
-            }
-            case "Chest" -> {
-                if (this.numKeys >= REQUIRED_KEYS) {
-                    gamePanel.getUi().endGame();
-                    gamePanel.stopMusic();
-                    gamePanel.playSoundEffect(Sound.VICTORY);
-
-                } else {
-                    gamePanel.getUi().showMessage("You need " + (REQUIRED_KEYS - this.numKeys)
-                            + " more keys to open the chest!");
-                }
-            }
-            case "Boots" -> {
-                gamePanel.playSoundEffect(Sound.POWER_UP);
-
-                gameObjects.remove(gameObjIndex);
-                this.setSpeed((int) (this.getSpeed() * SPEED_BOOST_MULTIPLIER));
-                gamePanel.getUi().showMessage("Speed up!");
-            }
-        }
+        GameObject gameObj = gamePanel.getGameObjects().get(gameObjIndex);
+        gameObj.onPlayerCollision(gamePanel);
     }
 
     /**
+     * Increments the number of keys the player currently holds
+     */
+    public void addKey() {
+        numKeys++;
+    }
+
+    /*
      * Updates current animation frame according to animation speed
      */
     private void updateAnimation() {
@@ -347,8 +346,20 @@ public class Player extends RenderableEntity {
         return frames[frameIndex];
     }
 
-    // Getter methods
+    /**
+     * Reset player values and game params to default value
+     */
+    public void reset() {
+        setDefaultValues();
+        numKeys = 0;
+        setMoving(false);
+    }
+
+    /* --------------- [GETTER METHODS] --------------- */
+
     public int getScreenX() { return screenX; }
     public int getScreenY() { return screenY; }
     public int getNumKeys() { return numKeys; }
+
+    /* ------------------------------------------------ */
 }

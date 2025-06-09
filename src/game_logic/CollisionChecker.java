@@ -74,10 +74,26 @@ public class CollisionChecker {
         }
     }
 
+    /*
+     * Checks if entity is within world boundaries
+     * @param col The entity world column (in tiles)
+     * @param row The entity world row (in tiles)
+     * @param maxCols The max world column (in tiles)
+     * @param maxRows The max world row (in tiles)
+     * @return true if entity is within world boundaries,
+     *         false otherwise
+     */
     private boolean isInsideMap(int col, int row, int maxCols, int maxRows) {
         return col >= 0 && col < maxCols && row >= 0 && row < maxRows;
     }
 
+    /*
+     * Checks if given tile index is within game tiles list and is therefore valid
+     * @param tileIndex The tile index to check
+     * @param tiles The game tiles list
+     * @return true if tile is valid,
+     *         false otherwise
+     */
     private boolean isValidTile(int tileIndex, ArrayList<Tile> tiles) {
         return tileIndex >= 0 && tileIndex < tiles.size() && tiles.get(tileIndex).isCollidable();
     }

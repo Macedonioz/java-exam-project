@@ -4,10 +4,7 @@ import object.Key;
 import utils.GameUtils;
 
 import java.awt.*;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -16,82 +13,141 @@ public class UI {
 
     // FONT SIZES
     private final static float TITLE_SCREEN_FONT_SIZE = 70.0f;
-    private final static float MENU_OPTIONS_FONT_SIZE = 35.0f;
+    private final static float MENU_COMMANDS_FONT_SIZE = 35.0f;
     private final static float COMMAND_SCREEN_FONT_SIZE = 50.0f;
     private final static float GAME_FONT_SIZE = 60.0f;
     private final static float PAUSE_FONT_SIZE = 50.0f;
+    private final static float OPTIONS_SCREEN_FONT_SIZE = 40.0f;
     private final static float TIMED_MESSAGE_FONT_SIZE = 45.0f;
     private final static float ENDING_FONT_SIZE = 75.0f;
-
-    // KEY OBJECT
-    private final static int KEY_STRING_X = (int) (GamePanel.TILE_SIZE * 1.8);
-    private final static int KEY_STRING_Y = (int) (GamePanel.TILE_SIZE * 1.4);
-    private final static int KEY_X = GamePanel.TILE_SIZE / 2;
-    private final static int KEY_Y = GamePanel.TILE_SIZE / 2;
-
-    // TIMED MESSAGE
-    private final static int TIMED_MESSAGE_X = (int) (GamePanel.TILE_SIZE / 1.5);
-    private final static int TIMED_MESSAGE_Y = GamePanel.TILE_SIZE * 3;
-    private final static int MESSAGE_DISPLAY_TIME = 90;
-
-    // GAME TIME
-    private final static int GAME_TIME_X = GamePanel.TILE_SIZE * 12;
-    private final static int GAME_TIME_Y = (int) (GamePanel.TILE_SIZE * 1.4);
+    private final static float ENDING_SUB_FONT_SIZE = 40.0f;
 
     // SPACING
     private final static int TEXT_SPACING = GamePanel.TILE_SIZE;
     private final static int CURSOR_SPACING = GamePanel.TILE_SIZE;
 
+    // CURSOR
+    private final static String CURSOR = ">";
+
+    // COMMANDS NUM
+    public static final int MENU_COMMANDS_NUM = 2;
+    public static final int MAIN_OPTION_COMMANDS_NUM = 4;
+    public static final int END_CONFIRM_OPTION_COMMANDS_NUM = 2;
+
+    // SELECTED COMMAND INDEXES
+    public final static int TITLE_START_GAME_COMMAND = 0;                               // Title state
+    public final static int TITLE_QUIT_COMMAND = 1;
+    public final static int OPTIONS_MUSIC_COMMAND = 0;                                  // Options state
+    public final static int OPTIONS_SE_COMMAND = 1;
+    public final static int OPTIONS_QUIT_COMMAND = 2;
+    public final static int OPTIONS_BACK_COMMAND = 3;
+    public final static int QUIT_CONFIRM_COMMAND = 0;                                   // End confirmation
+    public final static int QUIT_CANCEL_COMMAND = 1;
+
+    // SUBSTATE INDEXES
+    public final static int SUB_OPTION_MAIN = 0;                                   // End confirmation
+    public final static int SUB_OPTION_END_CONFIRM = 1;
+
     // IMAGE INDEXES
     private final static int KEY_IMAGE_INDEX = 0;
     private final static int JAVA_IMAGE_INDEX = 1;
 
-    // MAIN MENU
-    private final static Color MAIN_MENU_COLOR = new Color(5, 30, 75);
+    // SUBWINDOW
+    private final static Color DEFAULT_SUBWINDOW_COLOR = new Color(0, 0, 0, 210);
+    private final static int DEFAULT_SUBWINDOW_ARC = 35;
+    private final static Color DEFAULT_SUBWINDOW_FRAME_COLOR = new Color(225, 225, 225);
+    private final static Stroke DEFAULT_SUBWINDOW_FRAME_THICKNESS = new BasicStroke(4);
+    private final static int DEFAULT_SUBWINDOW_FRAME_OFFSET_X = 6;
+    private final static int DEFAULT_SUBWINDOW_FRAME_OFFSET_Y = 6;
+    private final static int DEFAULT_SUBWINDOW_FRAME_ARC = 25;
 
-    // MENU FRAME
-    private final static Color MENU_FRAME_COLOR = Color.WHITE;
+
+    // TITLE SCREEN STATE
+    public enum TitleScreenState {
+        MAIN_MENU,
+        COMMANDS_SCREEN;
+    }
+
+    // TITLE STATE
+    private final static Color MAIN_MENU_COLOR = new Color(5, 30, 75);
+    private final static Color MENU_FRAME_COLOR = Color.WHITE;                                                  // Frame
     private final static BasicStroke MENU_FRAME_THICKNESS = new BasicStroke(2);
     private final static int MENU_FRAME_OFFSET_X = GamePanel.TILE_SIZE / 2;
     private final static int MENU_FRAME_OFFSET_Y = GamePanel.TILE_SIZE / 2;
-
-    // GAME TITLE
-    private final static String GAME_TITLE = "Java Adventure";
+    private final static String GAME_TITLE = "Java Adventure";                                                  // Game title
     private final static int TITLE_Y = GamePanel.TILE_SIZE * 3;
     private final static int TITLE_SHADOW_OFFSET = 4;
-
-    // GAME IMAGE
-    private final static int GAME_IMAGE_X = GamePanel.SCREEN_WIDTH / 2 - (GamePanel.TILE_SIZE * 2) / 2;
+    private final static int GAME_IMAGE_X = GamePanel.SCREEN_WIDTH / 2 - (GamePanel.TILE_SIZE * 2) / 2;         // Game image
     private final static int GAME_IMAGE_SCALE = GamePanel.TILE_SIZE * 2;
-
-    // MENU OPTIONS
-    private static final String[] OPTIONS_LINES = {
+    private static final String[] COMMAND_LINES = {                                                             // Commands
             "START GAME",
-            "OPTIONS",
             "QUIT"
     };
 
-    // CURSOR
-    private final static String CURSOR = ">";
-
-    // COMMAND_SCREEN
+    // COMMAND SCREEN
     private static final String[] COMMAND_SCREEN_LINES = {
             "<How to play>",
             "Move: [WASD / ArrowKeys]",
             "Pause: [P]",
+            "Options: [Esc]",
             "Debug Mode: [']",
             "(Press enter to start game)"
     };
     private final static int INITIAL_COMMANDS_Y = GamePanel.TILE_SIZE * 2;
 
+    // PLAYING STATE
+    private final static int KEY_STRING_X = (int) (GamePanel.TILE_SIZE * 1.8);                      // Key object
+    private final static int KEY_STRING_Y = (int) (GamePanel.TILE_SIZE * 1.4);
+    private final static int KEY_X = GamePanel.TILE_SIZE / 2;
+    private final static int KEY_Y = GamePanel.TILE_SIZE / 2;
+    private final static int TIMED_MESSAGE_X = (int) (GamePanel.TILE_SIZE / 1.5);                   // Timed Message
+    private final static int TIMED_MESSAGE_Y = GamePanel.TILE_SIZE * 3;
+    private final static int MESSAGE_DISPLAY_TIME = 90;
+    private final static int GAME_TIME_X = GamePanel.TILE_SIZE * 12;                                // Game time
+    private final static int GAME_TIME_Y = (int) (GamePanel.TILE_SIZE * 1.4);
+
     // PAUSED STATE
     private final static String PAUSE_MSG = "PAUSED";
     private final static int PAUSE_Y = GamePanel.SCREEN_HEIGHT / 2;
 
-    // ENDING SCREEN
-    private final static String ENDING_MSG_1 = "You found the treasure!";
-    private final static String ENDING_MSG_2 = "Congratulations!";
-    private final static int INITIAL_ENDING_MESSAGE_Y = GamePanel.SCREEN_HEIGHT / 2 - (int) (GamePanel.TILE_SIZE * 1.5);
+    // OPTION STATE
+    private final static int OPTIONS_FRAME_X = GamePanel.TILE_SIZE * 4;                             // Options subwindow
+    private final static int OPTIONS_FRAME_Y = GamePanel.TILE_SIZE;
+    private final static int OPTIONS_FRAME_WIDTH = GamePanel.TILE_SIZE * 8;
+    private final static int OPTIONS_FRAME_HEIGHT = GamePanel.TILE_SIZE * 10;
+    private static final int OPTIONS_MAIN = 0;                                                      // Substate indexes
+    private static final int OPTIONS_END_GAME_CONFIRMATION = 1;
+    private static final String[] OPTIONS_SCREEN_LINES = {                                          // Options lines
+            "Options",
+            "Music",
+            "SE",
+            "Quit game",
+            "Back"
+    };
+    private static final int OPTIONS_LINES_OFFSET_Y = GamePanel.TILE_SIZE;
+    private static final int OPTIONS_LINES_OFFSET_X = GamePanel.TILE_SIZE;
+    private final static BasicStroke VOLUME_SLIDER_THICKNESS = new BasicStroke(3);            // Volume sliders
+    private final static int VOLUME_SLIDER_X_OFFSET = (int) (GamePanel.TILE_SIZE * 4.5);
+    private final static int VOLUME_SLIDER_Y_OFFSET = GamePanel.TILE_SIZE * 2 + 28;
+    private final static int VOLUME_SLIDER_WIDTH = 120;
+    private final static int VOLUME_SLIDER_HEIGHT = 24;
+    private final static int VOLUME_SLIDER_SCALE_WIDTH = 24;
+    private static final String[] END_GAME_CONFIRM_LINES = {                                        // Options end game confirm lines (substate 1)
+            "Quit the game and \nreturn to the title screen?",
+            "Yes",
+            "No"
+    };
+    private final static int END_GAME_CONFIRM_TEXT_OFFSET_X = GamePanel.TILE_SIZE / 2;
+    private final static int END_GAME_CONFIRM_TEXT_OFFSET_Y = GamePanel.TILE_SIZE * 3;
+
+    // ENDING STATE
+    private static final String[] ENDING_SCREEN_LINES = {
+            "Congratulations!",
+            "You found the treasure!",
+            "Your time is: ",
+            "<Press Enter to return to the title screen>"
+    };
+    private final static int INITIAL_ENDING_MESSAGE_Y = GamePanel.SCREEN_HEIGHT / 2 - (int) (GamePanel.TILE_SIZE * 3);
 
     /* ---------------------------------------------- */
 
@@ -112,19 +168,15 @@ public class UI {
     private String message = "";
     private int messageCounter = 0;
 
-    // GAME STATE
-    private boolean isGameFinished = false;
-
     // COMMAND SELECTION
     private int selectedCommand = 0;
-    private static final int MAX_COMMAND_INDEX = 2;
 
-    // TITLE SCREEN STATE
-    public enum TitleScreenState {
-        MAIN_MENU,
-        COMMANDS_SCREEN
-    }
+    // SUBSTATE
+    private int subState = 0;
+
+    // TS STATE
     private TitleScreenState titleScreenState = TitleScreenState.MAIN_MENU;
+
 
     public UI(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
@@ -151,7 +203,7 @@ public class UI {
 
         // Misc sprites images
         try {
-            images.add(GameUtils.loadImageSafe("/sprites/misc/java.png"));              // [INDEX 1]
+            images.add(GameUtils.loadImageSafe("/sprites/misc/java.png"));          // [INDEX 1]
 
         } catch (Exception e){
             System.err.println(e.getMessage());
@@ -160,23 +212,25 @@ public class UI {
 
     /**
      * Draws the appropriate UI elements based on the game state.
-     * Draws the end game screen if the game is finished, the HUD otherwise
      * @param g2 The Graphics2D context to draw on
      */
     public void draw(Graphics2D g2) {
-        if (isGameFinished) {
-            drawEndGameScreen(g2);
-        } else {
-            switch (gamePanel.getGameState()) {
-                case TITLE -> {
-                    drawTitleScreen(g2);
-                }
-                case PLAYING -> {
-                    drawPlayingUI(g2);
-                }
-                case PAUSED -> {
-                    drawPauseScreen(g2);
-                }
+
+        switch (gamePanel.getGameState()) {
+            case TITLE -> {
+                drawTitleScreen(g2);
+            }
+            case PLAYING -> {
+                drawPlayingUI(g2);
+            }
+            case PAUSED -> {
+                drawPauseScreen(g2);
+            }
+            case OPTIONS -> {
+                drawOptionsScreen(g2);
+            }
+            case ENDING -> {
+                drawEndGameScreen(g2);
             }
         }
     }
@@ -193,7 +247,7 @@ public class UI {
                 drawMainMenuFrame(g2);
                 drawGameTitle(g2);
                 drawGameImage(g2);
-                drawMenuOptions(g2);
+                drawMenuCommands(g2);
             }
             case TitleScreenState.COMMANDS_SCREEN -> {
                 drawCommandScreen(g2);
@@ -258,28 +312,40 @@ public class UI {
     }
 
     /*
-     * Draws main menu options (with selection cursor)
+     * Draws main menu commands (with selection cursor)
      * @param g2 The Graphics2D context to draw on
      */
-    private void drawMenuOptions(Graphics2D g2) {
-        g2.setFont(secondaryFont.deriveFont(MENU_OPTIONS_FONT_SIZE));
-        int y = TITLE_Y + TEXT_SPACING * 6;
+    private void drawMenuCommands(Graphics2D g2) {
+        g2.setFont(secondaryFont.deriveFont(MENU_COMMANDS_FONT_SIZE));
+        int y = (int) (TITLE_Y + TEXT_SPACING * 6.5);
 
-        String[] options = OPTIONS_LINES;
+        String[] commandLines = COMMAND_LINES;
 
-        for (int i = 0; i < options.length; i++) {
-            String text = options[i];
+        for (int i = 0; i < commandLines.length; i++) {
+            String text = commandLines[i];
 
             int x = getXForCenteredText(text, g2);
             g2.drawString(text, x, y);
 
             if (selectedCommand == i) {
                 g2.drawString(CURSOR, x - CURSOR_SPACING, y);
+
+                if (gamePanel.getGameKeyHandler().isEnterPressed()) {
+                    switch (selectedCommand) {
+                        case UI.TITLE_START_GAME_COMMAND -> { setTitleScreenState(UI.TitleScreenState.COMMANDS_SCREEN);
+                        }
+                        case UI.TITLE_QUIT_COMMAND -> System.exit(0);
+                    }
+                }
             }
 
             y += (int) (TEXT_SPACING * 0.9);
         }
+
+        gamePanel.getGameKeyHandler().resetEnterKeyState();
     }
+
+    // TODO here
 
     /*
      * Draws command instructions
@@ -304,6 +370,14 @@ public class UI {
                 y += spacing;
             }
         }
+
+        if (gamePanel.getGameKeyHandler().isEnterPressed()) {
+            gamePanel.setGameState(GamePanel.GameState.PLAYING);
+            gamePanel.playMusic(Sound.GAME_THEME);
+            setTitleScreenState(UI.TitleScreenState.MAIN_MENU);
+        }
+
+        gamePanel.getGameKeyHandler().resetEnterKeyState();
     }
 
     /*
@@ -359,7 +433,7 @@ public class UI {
         playTime += (double) 1 / GamePanel.FPS;
     }
 
-    /*
+    /**
      * Displays a temporary message on the game screen.
      * The message will automatically disappear after a set time
      * @param message The message text to display
@@ -389,6 +463,7 @@ public class UI {
 
     /*
      * Draws pause text if game state is on PAUSED
+     * @param g2 The Graphics2D context to draw on
      */
     private void drawPauseScreen(Graphics2D g2) {
         String text = PAUSE_MSG;
@@ -402,34 +477,195 @@ public class UI {
     }
 
     /*
-     * Draws the end game screen.
-     * Stops the game thread after drawing
+     * Draws the entire options screen, including the background subwindow
+     * and the current options menu based on the substate.
+     * @param g2 The Graphics2D context used for rendering.
      */
-    private void drawEndGameScreen(Graphics2D g2) {
-        g2.setFont(primaryFont);
-        g2.setColor(Color.WHITE);
+    private void drawOptionsScreen(Graphics2D g2) {
 
+        // SUB WINDOW
+        int frameX = OPTIONS_FRAME_X;
+        int frameY = OPTIONS_FRAME_Y;
+        int frameWidth = OPTIONS_FRAME_WIDTH;
+        int frameHeight = OPTIONS_FRAME_HEIGHT;
+        drawSubWindow(frameX, frameY, frameWidth, frameHeight, g2);
+
+        g2.setColor(Color.WHITE);
+        g2.setFont(primaryFont.deriveFont(OPTIONS_SCREEN_FONT_SIZE));
+
+        switch (subState) {
+            case OPTIONS_MAIN -> { drawOptionsMain(frameX, frameY, g2); }
+            case OPTIONS_END_GAME_CONFIRMATION -> { drawOptionsEndGameConfirmation(frameX, frameY, g2); }
+        }
+
+        gamePanel.getGameKeyHandler().resetEnterKeyState();
+    }
+
+    /*
+     * Draws the main options menu
+     * @param frameX The x coordinate of the options window's top-left corner
+     * @param frameY The y coordinate of the options window's top-left corner
+     * @param g2 The Graphics2D context used for rendering
+     */
+    public void drawOptionsMain(int frameX, int frameY, Graphics2D g2) {
+        int x, y;
+        String text;
         int spacing = TEXT_SPACING;
 
-        // Ending message 1
-        String text = ENDING_MSG_1;
-        int x = getXForCenteredText(text, g2);
-        int y = INITIAL_ENDING_MESSAGE_Y;
-        g2.drawString(text, x, y); y+= (int) (spacing * 3.5);
+        // TITLE
+        text = OPTIONS_SCREEN_LINES[0];
+        x = getXForCenteredText(text, g2);
+        y = frameY + OPTIONS_LINES_OFFSET_Y;
+        g2.drawString(text, x, y);  y += spacing * 2;
 
-        // Final time message
-        String timeText = "Your time is: " + decimalFormat.format(playTime);
-        x = getXForCenteredText(timeText, g2);
-        g2.drawString(timeText, x, y); y+= spacing * 2;
+        // MUSIC
+        text = OPTIONS_SCREEN_LINES[1];
+        x = frameX + OPTIONS_LINES_OFFSET_X;
+        g2.drawString(text, x, y);
+        if (selectedCommand == OPTIONS_MUSIC_COMMAND) {
+            g2.drawString(CURSOR, x - (CURSOR_SPACING / 2), y);
+        }
+        y += spacing;
 
-        // Ending message 2
-        g2.setFont(secondaryFont);
-        g2.setColor(Color.YELLOW);
-        text = ENDING_MSG_2;
+        // SE
+        text = OPTIONS_SCREEN_LINES[2];
+        g2.drawString(text, x, y);
+        if (selectedCommand == OPTIONS_SE_COMMAND) {
+            g2.drawString(CURSOR, x - (CURSOR_SPACING / 2), y);
+        }
+        y += spacing;
+
+        // QUIT GAME
+        text = OPTIONS_SCREEN_LINES[3];
+        g2.drawString(text, x, y);
+        if (selectedCommand == OPTIONS_QUIT_COMMAND) {
+            g2.drawString(CURSOR, x - (CURSOR_SPACING / 2), y);
+            if(gamePanel.getGameKeyHandler().isEnterPressed()) {
+                gamePanel.resetGame();
+            }
+        }
+        y += spacing * 2;
+
+        // BACK
+        text = OPTIONS_SCREEN_LINES[4];
+        g2.drawString(text, x, y);
+        if (selectedCommand == OPTIONS_BACK_COMMAND) {
+            g2.drawString(CURSOR, x - (CURSOR_SPACING / 2), y);
+            if(gamePanel.getGameKeyHandler().isEnterPressed()) {
+                gamePanel.setGameState(GamePanel.GameState.PLAYING);
+                selectedCommand = 0;
+            }
+        }
+
+        // VOLUME SLIDERS
+        x = frameX + VOLUME_SLIDER_X_OFFSET;
+        y = frameY + VOLUME_SLIDER_Y_OFFSET;
+        g2.setStroke(VOLUME_SLIDER_THICKNESS);
+        int volumeWidth;
+
+        // Music
+        g2.drawRect(x, y, VOLUME_SLIDER_WIDTH, VOLUME_SLIDER_HEIGHT);
+        volumeWidth = VOLUME_SLIDER_SCALE_WIDTH * gamePanel.getMusic().getVolumeScale();
+        g2.fillRect(x, y, volumeWidth, VOLUME_SLIDER_HEIGHT);   y += spacing;
+
+        // Sound effects
+        g2.drawRect(x, y, VOLUME_SLIDER_WIDTH, VOLUME_SLIDER_HEIGHT);
+        volumeWidth = VOLUME_SLIDER_SCALE_WIDTH * gamePanel.getSE().getVolumeScale();
+        g2.fillRect(x, y, volumeWidth, VOLUME_SLIDER_HEIGHT);
+    }
+
+    /*
+     * Draws the end game confirmation screen, with options to confirm/cancel quitting the game
+     * @param frameX The x coordinate of the confirmation window's top-left corner
+     * @param frameY The y coordinate of the confirmation window's top-left corner
+     * @param g2 The Graphics2D context used for rendering
+     */
+    public void drawOptionsEndGameConfirmation(int frameX, int frameY, Graphics2D g2) {
+        int x, y;
+        String text;
+        int spacing = TEXT_SPACING;
+
+        // CONFIRM QUESTION
+        text = END_GAME_CONFIRM_LINES[0];
+        x = frameX + END_GAME_CONFIRM_TEXT_OFFSET_X;
+        y = frameY + END_GAME_CONFIRM_TEXT_OFFSET_Y;
+
+        for (String line : text.split("\n")) {
+            g2.drawString(line, x, y);
+            y += spacing;
+        }
+        y += spacing * 3;
+
+        // YES
+        text = END_GAME_CONFIRM_LINES[1];
         x = getXForCenteredText(text, g2);
         g2.drawString(text, x, y);
 
-        gamePanel.stopGameThread();
+        if (selectedCommand == QUIT_CONFIRM_COMMAND) {
+            g2.drawString(CURSOR, x - (CURSOR_SPACING / 2), y);
+            if (gamePanel.getGameKeyHandler().isEnterPressed()) {
+                subState = 0;
+                gamePanel.setGameState(GamePanel.GameState.TITLE);
+                gamePanel.stopMusic();
+            }
+        }
+        y += spacing;
+
+        // NO
+        text = END_GAME_CONFIRM_LINES[2];
+        x = getXForCenteredText(text, g2);
+        g2.drawString(text, x, y);
+
+        if (selectedCommand == QUIT_CANCEL_COMMAND) {
+            g2.drawString(CURSOR, x - (CURSOR_SPACING / 2), y);
+            if (gamePanel.getGameKeyHandler().isEnterPressed()) {
+                subState = 0;
+                selectedCommand = 3;
+            }
+        }
+    }
+
+    /*
+     * Draws the end game screen
+     * @param g2 The Graphics2D context used for rendering
+     */
+    private void drawEndGameScreen(Graphics2D g2) {
+        int x, y;
+        String text;
+        int spacing = TEXT_SPACING;
+
+        g2.setFont(secondaryFont);
+        g2.setColor(Color.YELLOW);
+
+        // Ending message 1
+        text = ENDING_SCREEN_LINES[0];
+        x = getXForCenteredText(text, g2);
+        y = INITIAL_ENDING_MESSAGE_Y;
+        g2.drawString(text, x, y); y+= (int) (spacing * 1.4);
+
+        g2.setFont(primaryFont);
+        g2.setColor(Color.WHITE);
+
+        // Ending message 2
+        text = ENDING_SCREEN_LINES[1];
+        x = getXForCenteredText(text, g2);
+        g2.drawString(text, x, y); y+= (int) (spacing * 4.5);
+
+        // Final time message
+        text = ENDING_SCREEN_LINES[2] + decimalFormat.format(playTime);
+        x = getXForCenteredText(text, g2);
+        g2.drawString(text, x, y); y+= spacing;
+
+        g2.setFont(primaryFont.deriveFont(ENDING_SUB_FONT_SIZE));
+
+        // Back to title screen message
+        text = ENDING_SCREEN_LINES[3];
+        x = getXForCenteredText(text, g2);
+        g2.drawString(text, x, y);
+
+        if (gamePanel.getGameKeyHandler().isEnterPressed()) {
+            gamePanel.resetGame();
+        }
     }
 
     /*
@@ -441,39 +677,66 @@ public class UI {
         return (GamePanel.SCREEN_WIDTH / 2) - (textLength / 2);
     }
 
+    /*
+     * Draws a styled subwindow of given size.
+     * @param x The x coordinate of the top-left corner
+     * @param y The y coordinate of the top-left corner
+     * @param width The width of the subwindow
+     * @param height The height of the subwindow
+     * @param g2 The Graphics2D context used for rendering.
+     */
+    private void drawSubWindow(int x, int y, int width, int height, Graphics2D g2) {
+        g2.setColor(DEFAULT_SUBWINDOW_COLOR);
+        g2.fillRoundRect(x, y, width, height, DEFAULT_SUBWINDOW_ARC, DEFAULT_SUBWINDOW_ARC);
+
+        g2.setColor(DEFAULT_SUBWINDOW_FRAME_COLOR);
+        g2.setStroke(DEFAULT_SUBWINDOW_FRAME_THICKNESS);
+        g2.drawRoundRect(x + DEFAULT_SUBWINDOW_FRAME_OFFSET_X, y + DEFAULT_SUBWINDOW_FRAME_OFFSET_Y,
+                    width - (DEFAULT_SUBWINDOW_FRAME_OFFSET_X * 2), height - (DEFAULT_SUBWINDOW_FRAME_OFFSET_Y * 2),
+                          DEFAULT_SUBWINDOW_FRAME_ARC, DEFAULT_SUBWINDOW_FRAME_ARC);
+    }
+
     /**
      * Decreases the selected command by one.
-     * If the selected command would become negative, it wraps around to MAX_COMMAND_INDEX
+     * If the selected command would become negative, it wraps around to maxCommands
+     * @param maxCommands max command index
      */
-    public void decreaseSelectedCommand() {
-        selectedCommand = ((selectedCommand - 1) + (MAX_COMMAND_INDEX + 1)) % (MAX_COMMAND_INDEX + 1);
-        gamePanel.playSoundEffect(Sound.MENU_SELECT);
+    public void decreaseSelectedCommand(int maxCommands) {
+        if (selectedCommand == 0) {
+            selectedCommand = maxCommands - 1;
+        } else {
+            selectedCommand--;
+        }
     }
 
     /**
      * Increases the selected command by one.
-     * If the selected command would exceed MAX_COMMAND_INDEX, it wraps around to zero.
+     * If the selected command would exceed maxCommands, it wraps around to zero.
+     * @param maxCommands max command index
      */
-    public void increaseSelectedCommand() {
-        selectedCommand = (selectedCommand + 1) % (MAX_COMMAND_INDEX + 1);
-        gamePanel.playSoundEffect(Sound.MENU_SELECT);
+    public void increaseSelectedCommand(int maxCommands) {
+        selectedCommand = (selectedCommand + 1) % (maxCommands);
     }
 
     /**
-     * Marks the game as finished, triggering the end game screen to be displayed.
+     * Reset UI state
      */
-    public void endGame() {this.isGameFinished = true;}
+    public void reset() {
+        playTime = 0;
+        subState = 0;
+        selectedCommand = 0;
+        titleScreenState = TitleScreenState.MAIN_MENU;
+    }
 
     /* --------------- [GETTER METHODS] --------------- */
 
     public int getSelectedCommand() {
         return selectedCommand;
     }
-
     public TitleScreenState getTitleScreenState () {
         return titleScreenState;
     }
-
+    public int getSubState() { return subState; }
     /* ------------------------------------------------ */
 
 

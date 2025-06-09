@@ -14,13 +14,13 @@ import java.util.ArrayList;
  * @author LC
  */
 public class GamePanel extends JPanel implements Runnable{
+
     /* --------------- [CONSTANTS] --------------- */
 
     // SCREEN SETTINGS
     public static final int ORIGINAL_TILE_SIZE = 16;                        // 16x16 default tile size
     public static final int SCALE = 3;
     public static final int TILE_SIZE = ORIGINAL_TILE_SIZE * SCALE;          // 48x48 actual tile size
-
     public static final int MAX_SCREEN_COL = 16;                            // 4x3 ratio
     public static final int MAX_SCREEN_ROW = 12;
     public static final int SCREEN_WIDTH = MAX_SCREEN_COL * TILE_SIZE;        // 768x576 pixels
@@ -55,7 +55,7 @@ public class GamePanel extends JPanel implements Runnable{
     private final Player player = new Player(this);
     private final ArrayList<GameObject> gameObjects = new ArrayList<>();
     private final Sound music = new Sound();
-    private final Sound soundEffect = new Sound();
+    private final Sound SE = new Sound();
     private final UI ui = new UI(this);
 
     // GAME STATE
@@ -63,9 +63,11 @@ public class GamePanel extends JPanel implements Runnable{
         PLAYING,
         PAUSED,
         TITLE,
-        OPTIONS
+        OPTIONS,
+        ENDING
     }
     private GameState gameState;
+
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -76,6 +78,9 @@ public class GamePanel extends JPanel implements Runnable{
         requestFocusInWindow();                     // Request input focus for GamePanel
     }
 
+    /**
+     * Setup initial game config
+     */
     public void setupGame() {
         gameState = GameState.TITLE;
         assetSetter.setGameObjects();
@@ -88,13 +93,6 @@ public class GamePanel extends JPanel implements Runnable{
         gameThread = new Thread(this, "Game Thread");
         // starting the thread causes the run method to be automatically called in that separately executing thread
         gameThread.start();
-    }
-
-    /**
-     * Stops the game loop thread
-     */
-    public void stopGameThread() {
-        gameThread.interrupt();
     }
 
     /**
@@ -139,7 +137,7 @@ public class GamePanel extends JPanel implements Runnable{
                 case PLAYING -> {
                     player.update();
                 }
-                case PAUSED -> {
+                case PAUSED, OPTIONS, ENDING -> {
                     // No updates
                 }
             }
@@ -162,7 +160,7 @@ public class GamePanel extends JPanel implements Runnable{
 
         switch (gameState) {
             case TITLE -> drawTitleScreen(g2);
-            case PLAYING, PAUSED -> drawGame(g2);
+            case PLAYING, PAUSED, OPTIONS, ENDING -> drawGame(g2);
         }
     }
 
@@ -266,9 +264,9 @@ public class GamePanel extends JPanel implements Runnable{
      * Plays sound effect with given soundID
      * @param soundID ID of sound to play
      */
-    public void playSoundEffect(int soundID) {
-        soundEffect.loadAudio(soundID);
-        soundEffect.play();
+    public void playSE(int soundID) {
+        SE.loadAudio(soundID);
+        SE.play();
     }
 
     /**
@@ -277,13 +275,24 @@ public class GamePanel extends JPanel implements Runnable{
      * @param gameState Game state to set
      */
     public void setGameState(GameState gameState) {
-        if (gameState == GameState.PAUSED) {
-            stopMusic();
-        } else if (gameState == GameState.PLAYING) {
-            resumeMusic();
-        }
-
         this.gameState = gameState;
+    }
+
+    /**
+     * Reset game state
+     */
+    public void resetGame() {
+        // Reset player state
+        player.reset();
+
+        // Clear all existing objects
+        gameObjects.clear();
+
+        // Reset UI elements
+        ui.reset();
+
+        setupGame();
+        stopMusic();
     }
 
     /* --------------- [GETTER METHODS] --------------- */
@@ -296,6 +305,8 @@ public class GamePanel extends JPanel implements Runnable{
     public ArrayList<GameObject> getGameObjects() { return gameObjects; }
     public UI getUi() { return ui; }
     public GameState getGameState() { return gameState; }
+    public Sound getMusic() { return music; }
+    public Sound getSE() { return SE; }
 
     /* ------------------------------------------------ */
 }

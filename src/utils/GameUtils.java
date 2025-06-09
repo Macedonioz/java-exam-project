@@ -8,11 +8,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+/**
+ * Provides utility methods for common game-related operations.
+ */
 public class GameUtils {
+
     /**
      * Loads image safely from given path
-     * @param path file path from which to open image
-     * @return the image if loading was successfull
+     * @param path The file path from which to open image
+     * @return The image if loading was successfull
      * @throws FileNotFoundException if file was not found
      * @throws IOException if image format is invalid
      */

@@ -6,27 +6,43 @@ import game_logic.GamePanel;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class GameObject {
+public abstract class GameObject {
     private final GamePanel gamePanel;
 
+    // PROPERTIES
     private final String name;
     private BufferedImage image;
-    private boolean hasCollision;
 
+    // COORDINATES
     private int worldX, worldY;
+
+    // HITBOX
     private final Rectangle solidArea = new Rectangle(0, 0, GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
     private int solidAreaDefaultX, solidAreaDefaultY;
+    private boolean hasCollision;
+
 
     public GameObject(String name, GamePanel gamePanel) {
         this.name = name;
         this.gamePanel = gamePanel;
     }
 
-    // Checks if object is within the player's visible area.
-    // Returns true if object is inside the boundaries, false otherwise
+
+    /*
+     * Checks if object is within the player's visible area.
+     * @param worldX The object's world X coordinate
+     * @param worldY The object's world Y coordinate
+     * @param playerWorldX The player's world X coordinate
+     * @param playerWorldY The player's world Y coordinate
+     * @param playerScreenX The player's screen X coordinate
+     * @param playerScreenY The player's screen Y coordinate
+     * @return true if object is inside the boundaries,
+     *         false otherwise
+     */
     private boolean isObjectVisible(int worldX, int worldY,
                                   int playerWorldX, int playerWorldY,
                                   int playerScreenX, int playerScreenY) {
+
         int leftBound = playerWorldX - playerScreenX;
         int rightBound = playerWorldX + playerScreenX;
         int upperBound = playerWorldY - playerScreenY;
@@ -38,7 +54,7 @@ public class GameObject {
                 (worldY - GamePanel.TILE_SIZE) < lowerBound;
     }
 
-    /**
+    /*
      * Renders the object to the screen.
      * Only objects within the visible screen area are drawn.
      * @param g2 Graphics context used for drawing
@@ -67,19 +83,33 @@ public class GameObject {
         renderObject(g2);
     }
 
-    // Getter methods
+
+    /* --------------- [GETTER METHODS] --------------- */
+
     public String getName() { return name; }
     public BufferedImage getImage() { return image; }
-    public boolean isCollidable() { return hasCollision; }
     public int getWorldX() { return worldX; }
     public int getWorldY() { return worldY; }
     public Rectangle getSolidArea() { return solidArea; }
     public int getSolidAreaDefaultX() { return solidAreaDefaultX; }
     public int getSolidAreaDefaultY() { return solidAreaDefaultY; }
+    public boolean isCollidable() { return hasCollision; }
 
-    // Setter methods
+    /* ------------------------------------------------ */
+
+
+    /* --------------- [SETTER METHODS] --------------- */
+
     public void setImage(BufferedImage image) { this.image = image; }
-    public void setCollision(boolean hasCollision) { this.hasCollision = hasCollision; }
     public void setWorldX(int worldX) { this.worldX = worldX; }
     public void setWorldY(int worldY) { this.worldY = worldY; }
+    public void setCollision(boolean hasCollision) { this.hasCollision = hasCollision; }
+
+    /* ------------------------------------------------ */
+
+    /* -------------- [ABSTRACT METHODS] -------------- */
+
+    public abstract void onPlayerCollision(GamePanel gamePanel);
+
+    /* ------------------------------------------------ */
 }

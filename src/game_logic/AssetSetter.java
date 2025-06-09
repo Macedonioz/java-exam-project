@@ -12,7 +12,13 @@ public class AssetSetter {
         this.gamePanel = gamePanel;
     }
 
-    // Sets game object coordinates and adds it to game objects list
+    /*
+     * Sets game object world coordinates based on tile location
+     * and adds it to game objects list
+     * @param gameObj The game object to be added
+     * @param tileCol The world column (in tiles) where the object should be placed
+     * @param tileRow The world row (in tiles) where the object should be placed.
+     */
     private void addGameObject(GameObject gameObj, int tileCol, int tileRow) {
         gameObj.setWorldX(tileCol * GamePanel.TILE_SIZE);
         gameObj.setWorldY(tileRow * GamePanel.TILE_SIZE);

@@ -4,7 +4,10 @@ import java.awt.image.BufferedImage;
 
 public class Tile {
 
+    // TILE IMAGE
     private BufferedImage image;
+
+    // COLLISION
     private boolean hasCollision;
 
     public Tile(BufferedImage image, boolean hasCollision) {
@@ -12,11 +15,19 @@ public class Tile {
         this.hasCollision = hasCollision;
     }
 
-    // Getter methods
+
+    /* --------------- [GETTER METHODS] --------------- */
+
     public boolean isCollidable() { return hasCollision; }
     public BufferedImage getImage() { return image; }
 
-    // Setter methods
+    /* ------------------------------------------------ */
+
+
+    /* --------------- [SETTER METHODS] --------------- */
+
     public void setCollision(boolean hasCollision) { this.hasCollision = hasCollision; }
     public void setImage(BufferedImage image) { this.image = image; }
+
+    /* ------------------------------------------------ */
 }

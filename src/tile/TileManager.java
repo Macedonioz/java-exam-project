@@ -12,9 +12,7 @@ import java.util.ArrayList;
 
 public class TileManager {
 
-    private final GamePanel gamePanel;
-    private final ArrayList<Tile> tiles;
-    private final int[][] mapTileNum;
+    /* --------------- [CONSTANTS] --------------- */
 
     // SPRITE SHEETS
     private static final int DEFAULT_SHEET_COLS = 3;
@@ -65,6 +63,17 @@ public class TileManager {
             SOLID, NON_SOLID, SOLID
     };
 
+    /* ------------------------------------------- */
+
+    private final GamePanel gamePanel;
+
+    // TILE LIST
+    private final ArrayList<Tile> tiles;
+
+    // TILE INDEXES MAP
+    private final int[][] mapTileNum;
+
+
     public TileManager(GamePanel gamePanel) {
         this.gamePanel = gamePanel;
         this.tiles = new ArrayList<>();
@@ -97,26 +106,6 @@ public class TileManager {
         loadTilesFromSpriteSheet("/tiles/bridge_tiles01.png", GamePanel.ORIGINAL_TILE_SIZE, DEFAULT_SHEET_COLS, 6, BRIDGE_FLAGS);
     }
 
-    // Loads multiple tiles from sprite sheet at given path.
-    public void loadTilesFromSpriteSheet(String path, int tileSize, int cols, int rows, boolean[] collisionFlags) {
-        try {
-            BufferedImage spriteSheet = GameUtils.loadImageSafe(path);
-            ArrayList<BufferedImage> slicedTiles = GameUtils.sliceSpriteSheet(spriteSheet, tileSize, rows, cols);
-
-            for (int i = 0; i < slicedTiles.size(); i++) {
-                BufferedImage scaledTile = GameUtils.scaleImage(slicedTiles.get(i), GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
-                boolean hasCollision = (collisionFlags != null && i < collisionFlags.length) ? collisionFlags[i] : false;
-
-                tiles.add(new Tile(scaledTile, hasCollision));
-            }
-
-            System.out.println("Loaded " + slicedTiles.size() + " tiles from " + path);
-
-        } catch (IOException e) {
-            System.err.println("Error loading sprite sheet:\n" + e.getMessage());
-        }
-    }
-
     // Load single tile, setting up image and collision properties
     private void loadTile(String path, boolean collision) {
         Tile tile;
@@ -139,6 +128,35 @@ public class TileManager {
         }
 
         tiles.add(tile);
+    }
+
+    /*
+     * Loads multiple tiles from a sprite sheet located at the specified path.
+     * Each tile is sliced, scaled to the game's tile size, and assigned a collision flag.
+     * @param path The file path to the sprite sheet image
+     * @param tileSize The size (in pixels) of each tile in the sprite sheet
+     * @param cols The number of columns in the sprite sheet
+     * @param rows The number of rows in the sprite sheet
+     * @param collisionFlags An array indicating which tiles have collision.
+     *                       If null or shorter than tile count, remaining tiles are set by default to having no collision
+     */
+    private void loadTilesFromSpriteSheet(String path, int tileSize, int cols, int rows, boolean[] collisionFlags) {
+        try {
+            BufferedImage spriteSheet = GameUtils.loadImageSafe(path);
+            ArrayList<BufferedImage> slicedTiles = GameUtils.sliceSpriteSheet(spriteSheet, tileSize, rows, cols);
+
+            for (int i = 0; i < slicedTiles.size(); i++) {
+                BufferedImage scaledTile = GameUtils.scaleImage(slicedTiles.get(i), GamePanel.TILE_SIZE, GamePanel.TILE_SIZE);
+                boolean hasCollision = collisionFlags != null && i < collisionFlags.length && collisionFlags[i];            // short circuit
+
+                tiles.add(new Tile(scaledTile, hasCollision));
+            }
+
+            System.out.println("Loaded " + slicedTiles.size() + " tiles from " + path);
+
+        } catch (IOException e) {
+            System.err.println("Error loading sprite sheet:\n" + e.getMessage());
+        }
     }
 
     /**
@@ -179,8 +197,17 @@ public class TileManager {
         }
     }
 
-    // Checks if tile is within the player's visible area.
-    // Returns true if tile is inside the boundaries, false otherwise
+    /*
+     * Checks if tile is within the player's visible area.
+     * @param tileWorldX The tile's world X coordinate
+     * @param tileWorldY The tile's world Y coordinate
+     * @param playerWorldX The player's world X coordinate
+     * @param playerWorldY The player's world Y coordinate
+     * @param playerScreenX The player's screen X coordinate
+     * @param playerScreenY The player's screen Y coordinate
+     * @return true if tile is inside the boundaries,
+     *         false otherwise
+     */
     private boolean isTileVisible(int tileWorldX, int tileWorldY,
                                   int playerWorldX, int playerWorldY,
                                   int playerScreenX, int playerScreenY) {
@@ -196,6 +223,14 @@ public class TileManager {
     }
 
     /**
+     * Draws the game's tile map area visible by the player to the screen
+     * @param g2 Graphics context used for drawing
+     */
+    public void draw(Graphics2D g2) {
+        renderTileMap(g2);
+    }
+
+    /*
      * Renders the game's tile map relative to player position.
      * Only tiles within the visible screen area are drawn.
      * @param g2  Graphics context used for drawing
@@ -229,15 +264,11 @@ public class TileManager {
         }
     }
 
-    /**
-     * Draws the game's tile map area visible by the player to the screen
-     * @param g2 Graphics context used for drawing
-     */
-    public void draw(Graphics2D g2) {
-        renderTileMap(g2);
-    }
+    /* --------------- [GETTER METHODS] --------------- */
 
-    // Getter methods
     public int[][] getMapTileNum() { return mapTileNum; }
     public ArrayList<Tile> getTiles() { return tiles; }
+
+    /* ------------------------------------------------ */
+
 }
