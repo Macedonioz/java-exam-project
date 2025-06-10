@@ -34,7 +34,7 @@ public class Player extends RenderableEntity {
 
     // GAME PARAMS
     private static final int DEFAULT_SPEED = 5;
-    public static final int REQUIRED_KEYS = 0;
+    public static final int REQUIRED_KEYS = 9;
     public static final float SPEED_BOOST_MULTIPLIER = 1.2f;
 
     /* ------------------------------------------- */
