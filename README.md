@@ -4,7 +4,7 @@ This is a simple 2d treasure hunting game made as an exam project for an OOP cou
 
 The goal of the game is to collect all the keys scattered in the world map to open the chest containing the treasure.
 
-**Disclaimer:** The game is by no means complete or fully entertaining, it is to be intended solely as a personal excercise.
+**Disclaimer:** The game is by no means complete or fully entertaining; it is intended solely as a personal exercise.
 
 ## Features
 
@@ -40,5 +40,6 @@ mvn clean compile exec:java -Dexec.mainClass="game_logic.Main"
   - [Key Items 16x16](https://dantepixels.itch.io/key-items-16x16) by [@DantePixels](https://dantepixels.itch.io/)
 - **Sound:** 
   - [Final Quest - 16bit Retro RPG Music](https://ryanavx.itch.io/final-quest-music-pack) by [@RyanAvx](https://ryanavx.itch.io/)
+
 
 
