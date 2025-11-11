@@ -7,7 +7,7 @@
 
     <groupId>com.java-treasure</groupId>
     <artifactId>java-treasure</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
