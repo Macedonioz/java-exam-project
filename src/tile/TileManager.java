@@ -79,7 +79,7 @@ public class TileManager {
         this.mapTileNum = new int[GamePanel.MAX_WORLD_COL][GamePanel.MAX_WORLD_ROW];
 
         loadTiles();
-        loadTileMap("res/maps/world01.txt");
+        loadTileMap("maps/world01.txt");
     }
 
     /**
@@ -162,7 +162,12 @@ public class TileManager {
      */
     public void loadTileMap(String path) {
         try {
-            BufferedReader br = new BufferedReader(new FileReader(path));
+            InputStream is = getClass().getClassLoader().getResourceAsStream(path);
+            if (is == null) {
+                throw new IOException("File not found: " + path);
+            }
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
             for (int worldRow = 0; worldRow < GamePanel.MAX_WORLD_ROW; worldRow++) {
                 String line = br.readLine();
