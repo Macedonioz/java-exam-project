@@ -12,6 +12,11 @@ target/
 dependency-reduced-pom.xml
 release.properties
 
+# Editor backup files
+*~
+*#
+*.swp
+
 # Log file
 *.log
 
